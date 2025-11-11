@@ -1,38 +1,18 @@
-import React, {useState} from "react";
-import { StyleSheet, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import CurrentGPSData from "./components/CurrentGPSData";
-import CurrentCompassData from "./components/CurrentCompassData";
-import Navigator from "./components/Navigator"
-import DirectionPointer from "./components/DirectionPointer";
+import React from "react";
+import { NavigationContainer, createNavigationContainerRef } from "@react-navigation/native";
+import { AppProvider } from "./AppContext";
+import { createStackNavigator } from "@react-navigation/stack";
+import MainTab from "./screens/Main/MainTab";
 
-export default function App() {
-    const [currentCoords, setCurrentCoords] = useState(null);
-    const [currentHeading, setCurrentHeading] = useState(null);
-    const [targetData, setTargetData] = useState(null);
-    let targetAngle = 0
+const Stack = createStackNavigator();
+export const navigationRef = createNavigationContainerRef();
 
-    if(currentCoords && currentHeading && targetData){
-        targetAngle = (parseFloat(targetData.bearing.toFixed(1)) - currentHeading + 360) % 360;
-        // console.log(targetAngle);
-    }
-
+const App = () => {
     return(
-        <View style={styles.container}>
-            <CurrentGPSData onLocationUpdate={setCurrentCoords} />
-            <CurrentCompassData onHeadingChange={setCurrentHeading} />
-            <Navigator currentCoords={currentCoords} currentHeading={currentHeading} onUpdateTargetData={setTargetData} />
-            <DirectionPointer angle={targetAngle} />
-            <StatusBar style="auto" />
-      </View>
+        <AppProvider>
+            <MainTab/>
+        </AppProvider>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-});
+export default App;
