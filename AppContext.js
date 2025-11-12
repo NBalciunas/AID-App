@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, createContext, useContext } from "react";
 import * as Location from "expo-location";
+import example from "./assets/maps/example.json"
+import shop from "./assets/maps/shop.json"
 
 const AppContext = createContext(null);
 
@@ -20,6 +22,7 @@ const dirStr = (deg) => {
 };
 
 export const AppProvider = ({ children }) => {
+    const [maps, setMaps] = useState({});
     const [targetData, setTargetData] = useState({ lat: 52.50469, lon: 6.11236 });
     const [coords, setCoords] = useState(null);
     const [heading, setHeading] = useState(null);
@@ -45,6 +48,8 @@ export const AppProvider = ({ children }) => {
 
     useEffect(() => {
         let mounted = true;
+
+        setMaps({example, shop});
 
         (
             async () => {
@@ -148,6 +153,9 @@ export const AppProvider = ({ children }) => {
 
                 // meta
                 permissionStatus, lastFixAt,
+
+                // map data
+                maps, setMaps,
             }}
         >
             {children}

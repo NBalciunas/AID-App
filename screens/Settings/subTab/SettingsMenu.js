@@ -12,6 +12,8 @@ const Debug = () => {
             <Divider style={{ backgroundColor: '#fff', height: 2 }}/>
             <SettingItem onPress={() => navigation.navigate('LocationList')} title="Location List" />
             <Divider style={{ backgroundColor: '#fff', height: 2 }}/>
+            <SettingItem onPress={() => navigation.navigate('SetTarget')} title="Set Target" />
+            <Divider style={{ backgroundColor: '#fff', height: 2 }}/>
             <SettingItem onPress={() => navigation.navigate('Debug')} title="Debug" />
         </View>
     );
