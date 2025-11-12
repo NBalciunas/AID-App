@@ -2,18 +2,18 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 
-export default function DirectionPointer({ angle = 0, radius = 80 }) {
+export default function DirectionPointer({ angle = 0, radius = 140 }) {
     const rad = ((angle) * Math.PI) / 180;
 
-    const cx = 100;
-    const cy = 100;
+    const cx = 200;
+    const cy = 200;
 
     const x2 = cx + radius * Math.sin(rad);
     const y2 = cy - radius * Math.cos(rad);
 
     return (
         <View>
-            <Svg height="200" width="200">
+            <Svg height={2*cx} width={2*cy}>
                 <Circle
                     cx={cx}
                     cy={cy}
