@@ -5,7 +5,7 @@ import DirectionPointer from "../../components/DirectionPointer";
 
 const MainTab = () => {
     const { relativeAngle } = useAppContext();
-    return (
+    return(
         <View style={styles.container}>
             <DirectionPointer angle={ Math.round(relativeAngle || 0) } />
         </View>
@@ -20,4 +20,5 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: 20 },
 });
+
 export default MainTab;

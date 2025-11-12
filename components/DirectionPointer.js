@@ -11,7 +11,7 @@ export default function DirectionPointer({ angle = 0, radius = 140 }) {
     const x2 = cx + radius * Math.sin(rad);
     const y2 = cy - radius * Math.cos(rad);
 
-    return (
+    return(
         <View>
             <Svg height={2*cx} width={2*cy}>
                 <Circle
@@ -22,7 +22,6 @@ export default function DirectionPointer({ angle = 0, radius = 140 }) {
                     strokeWidth="2"
                     fill="none"
                 />
-
                 <Line
                     x1={cx}
                     y1={cy}

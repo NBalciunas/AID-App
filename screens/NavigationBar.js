@@ -7,7 +7,7 @@ import SettingsTab from "./Settings/SettingsTab";
 const Tab = createBottomTabNavigator();
 
 export default function NavigationTab() {
-    return (
+    return(
         <Tab.Navigator>
             <Tab.Screen
                 name="Main"
