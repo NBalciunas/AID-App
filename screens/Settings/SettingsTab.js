@@ -1,10 +1,16 @@
 import { View, Text } from "react-native";
+import { createStackNavigator } from '@react-navigation/stack';
+import SettingsMenu from "./subTab/SettingsMenu";
+import Debug from "./subTab/subMenu/Debug";
+
+const Stack = createStackNavigator();
 
 const SettingsTab = () => {
     return(
-        <View>
-            <Text>PlaceHolder</Text>
-        </View>
+        <Stack.Navigator initialRouteName="SettingsMenu" >
+            <Stack.Screen name="SettingsMenu" component={ SettingsMenu } options={{ headerShown: false }} />
+            <Stack.Screen name="Debug" component={ Debug } options={{ headerShown: false }}  />
+        </Stack.Navigator>
     );
 }
 export default SettingsTab;

@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 
-const DebugMenu = () => {
+const Debug = () => {
     return(
         <View>
             <Text>
@@ -10,4 +10,4 @@ const DebugMenu = () => {
     );
 }
 
-export default DebugMenu;
+export default Debug;
