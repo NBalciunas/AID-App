@@ -23,7 +23,10 @@ const dirStr = (deg) => {
 
 export const AppProvider = ({ children }) => {
     const [maps, setMaps] = useState({});
-    const [targetData, setTargetData] = useState({ lat: 52.50469, lon: 6.11236 });
+    const [targetData, setTargetData] = useState({
+        location_name: "",
+        location: null
+    });
     const [coords, setCoords] = useState(null);
     const [heading, setHeading] = useState(null);
     const smoothedHeading = useRef(null);

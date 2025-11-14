@@ -25,10 +25,11 @@ const Debug = () => {
                 Heading: {heading != null ? heading.toFixed(1) : "?"}° ({headingLabel})
             </Text>
 
-            {targetData && coords && (
+            {targetData?.location && coords && (
                 <Text style={styles.text}>
-                    Target Latitude: {targetData.lat}{"\n"}
-                    Target Longitude: {targetData.lon}{"\n"}
+                    Target name: {targetData.location_name}{"\n"}
+                    Target Latitude: {targetData.location.lat}{"\n"}
+                    Target Longitude: {targetData.location.lon}{"\n"}
                     Bearing to target: {bearingToTarget?.toFixed(1)}°{"\n"}
                     Relative angle: {relativeAngle?.toFixed(1)}°{"\n"}
                     Distance: {distanceMeters != null ? distanceMeters.toFixed(3) : "?"} m
