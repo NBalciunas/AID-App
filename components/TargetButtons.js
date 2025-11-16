@@ -1,36 +1,23 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { useAppContext } from "../AppContext";
+import { chooseMap } from "../helpers/chooseMap";
 
 const NavigationButtons = () => {
     const { maps, setTargetData } = useAppContext();
 
     const mapNames = Object.keys(maps || {});
 
-    const selectMap = (name) => {
-        const locs = maps[name];
-        if(!locs || locs.length === 0){
-            return;
-        }
-
-        const first = locs[0];
-
-        setTargetData({
-            location_name: `${name} – ${first.id}`,
-            location: { ...first }
-        });
-    };
-
-    return(
+    return (
         <View style={{ padding: 20, gap: 16, alignItems: "center" }}>
             <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 10 }}>
-                Choose where you want to go
+                GO TO:
             </Text>
 
             {mapNames.map((name) => (
                 <Pressable
                     key={name}
-                    onPress={() => selectMap(name)}
+                    onPress={() => chooseMap(maps, setTargetData, name)}
                     style={{
                         paddingVertical: 14,
                         paddingHorizontal: 30,
