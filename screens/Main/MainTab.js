@@ -4,6 +4,7 @@ import { useAppContext } from "../../AppContext";
 import TargetButtons from "../../components/TargetButtons";
 import DirectionPointer from "../../components/DirectionPointer";
 import NavigationButtons from "../../components/NavigationButtons";
+import StopButton from "../../components/StopButton";
 
 const MainTab = () => {
     const { targetData, relativeAngle } = useAppContext();
@@ -16,6 +17,7 @@ const MainTab = () => {
             {/* NAVIGATION ON */}
             {targetData.location ? <DirectionPointer angle={ Math.round(relativeAngle || 0) } /> : null}
             {targetData.location ? <NavigationButtons /> : null}
+            {targetData.location ? <StopButton /> : null}
         </View>
     );
 };
