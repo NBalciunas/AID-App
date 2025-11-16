@@ -1,15 +1,21 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useAppContext } from "../../AppContext";
+import TargetButtons from "../../components/TargetButtons";
 import DirectionPointer from "../../components/DirectionPointer";
 import NavigationButtons from "../../components/NavigationButtons";
 
 const MainTab = () => {
-    const { relativeAngle } = useAppContext();
+    const { targetData, relativeAngle } = useAppContext();
+
     return(
         <View style={styles.container}>
-            <DirectionPointer angle={ Math.round(relativeAngle || 0) } />
-            <NavigationButtons />
+            {/* NAVIGATION OFF */}
+            {!targetData.location ? <TargetButtons /> : null}
+
+            {/* NAVIGATION ON */}
+            {targetData.location ? <DirectionPointer angle={ Math.round(relativeAngle || 0) } /> : null}
+            {targetData.location ? <NavigationButtons /> : null}
         </View>
     );
 };

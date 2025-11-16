@@ -27,10 +27,6 @@ const NavigationButtons = () => {
         });
     };
 
-    if(!currentLoc){
-        return null;
-    }
-
     return (
         <View style={{ padding: 16, gap: 12, alignItems: "center" }}>
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, createContext, useContext } from "react";
 import * as Location from "expo-location";
-import example from "./assets/maps/example.json"
-import shop from "./assets/maps/shop.json"
+import mapsIndex from "./assets/maps";
 
 const AppContext = createContext(null);
 
@@ -52,7 +51,7 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         let mounted = true;
 
-        setMaps({example, shop});
+        setMaps(mapsIndex);
 
         (
             async () => {
