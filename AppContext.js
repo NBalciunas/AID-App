@@ -109,7 +109,7 @@ export const AppProvider = ({ children }) => {
 
     const { bearingToTarget, relativeAngle, distanceMeters, headingLabel } =
         useMemo(() => {
-            if (!coords || heading == null || !targetData) {
+            if(!coords || heading == null || !targetData?.location){
                 return {
                     bearingToTarget: null,
                     relativeAngle: 0,
@@ -119,21 +119,25 @@ export const AppProvider = ({ children }) => {
             }
 
             const { latitude, longitude } = coords;
+            const { lat: targetLat, lon: targetLon } = targetData.location;
+
             const Phi1 = toRad(latitude);
-            const Phi2 = toRad(targetData.lat);
-            const dLambda = toRad(targetData.lon - longitude);
+            const Phi2 = toRad(targetLat);
+            const dLambda = toRad(targetLon - longitude);
 
             const y = Math.sin(dLambda) * Math.cos(Phi2);
             const x = Math.cos(Phi1) * Math.sin(Phi2) - Math.sin(Phi1) * Math.cos(Phi2) * Math.cos(dLambda);
+
             const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
             const rel = (brng - heading + 360) % 360;
-            const R = 6371e3;
-            const dPhi = toRad(targetData.lat - latitude);
+
+            const R = 6371e3; // meters
+            const dPhi = toRad(targetLat - latitude);
             const a = Math.sin(dPhi / 2) ** 2 + Math.cos(Phi1) * Math.cos(Phi2) * Math.sin(dLambda / 2) ** 2;
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             const dist = R * c;
 
-            return {
+            return{
                 bearingToTarget: brng,
                 relativeAngle: rel,
                 distanceMeters: dist,
