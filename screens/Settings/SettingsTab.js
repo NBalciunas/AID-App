@@ -4,6 +4,7 @@ import ConnectBT from "./subTab/subMenu/ConnectBT";
 import LocationList from "./subTab/subMenu/LocationList"
 import SetTarget from "./subTab/subMenu/SetTarget";
 import Debug from "./subTab/subMenu/Debug";
+import Compass from "./subTab/subMenu/Compass";
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,7 @@ const SettingsTab = () => {
             <Stack.Screen name="LocationList" component={ LocationList } options={{ headerShown: false }} />
             <Stack.Screen name="SetTarget" component={ SetTarget } options={{ headerShown: false }} />
             <Stack.Screen name="Debug" component={ Debug } options={{ headerShown: false }} />
+            <Stack.Screen name="Compass" component={ Compass } options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }
