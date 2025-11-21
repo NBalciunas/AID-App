@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 const SettingItem = ({ title, onPress, color='F7F7F7', moreText }) => {
 
     const truncateText = (text, maxLength) => {
-        if (text.length > maxLength) {
+        if(text.length > maxLength){
             return text.substring(0, maxLength) + '...';
         }
         return text;
@@ -37,22 +37,13 @@ const styles = StyleSheet.create({
     },
     settingText: {
         fontSize: 16,
-        fontFamily: 'Poppins-Medium',
+        fontFamily: 'Poppins-Bold',
         textAlign: 'right',
     },
     detailText: {
         fontSize: 16,
-        fontFamily: 'Poppins-Medium',
+        fontFamily: 'Poppins-Bold',
         color: '#909090',
-    },
-    toggleButton: {
-        backgroundColor: '#007BFF',
-        padding: 5,
-        borderRadius: 5,
-    },
-    toggleButtonText: {
-        color: '#fff',
-        fontSize: 14,
     },
 });
 
