@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useAppContext } from "../../../../AppContext";
 
@@ -20,21 +20,21 @@ const SetTarget = () => {
     );
 
     useEffect(() => {
-        if (!maps || mapTypes.length === 0) return;
-
-        if (selectedType && selectedId) return;
+        if(!maps || mapTypes.length === 0){
+            return;
+        }
+        if(selectedType && selectedId){
+            return;
+        }
 
         let typeToUse = mapTypes[0];
         let idToUse = "";
 
-        if (targetData?.location) {
+        if(targetData?.location){
             outer: for (const t of mapTypes) {
                 const locs = maps[t] || [];
-                for (const loc of locs) {
-                    if (
-                        Math.abs(loc.lat - targetData.location.lat) < 1e-6 &&
-                        Math.abs(loc.lon - targetData.location.lon) < 1e-6
-                    ) {
+                for(const loc of locs){
+                    if(Math.abs(loc.lat - targetData.location.lat) < 1e-6 && Math.abs(loc.lon - targetData.location.lon) < 1e-6){
                         typeToUse = t;
                         idToUse = String(loc.id);
                         break outer;
@@ -45,22 +45,23 @@ const SetTarget = () => {
 
         setSelectedType(typeToUse);
 
-        if (idToUse) {
+        if(idToUse){
             setSelectedId(idToUse);
-        } else {
+        }
+        else{
             const locs = maps[typeToUse] || [];
             if (locs.length) setSelectedId(String(locs[0].id));
         }
-    }, [maps, mapTypes, targetData, selectedType, selectedId]);
+    }, [maps, mapTypes, targetData]);
 
     useEffect(() => {
-        if (!selectedType || !selectedId) return;
+        if(!selectedType || !selectedId){
+            return;
+        }
 
-        const loc = maps?.[selectedType]?.find(
-            (l) => String(l.id) === String(selectedId)
-        );
+        const loc = maps?.[selectedType]?.find((l) => String(l.id) === String(selectedId));
 
-        if (loc) {
+        if(loc){
             setTargetData({
                 location_name: `${selectedType} – ${loc.id}`,
                 location: {
@@ -73,48 +74,103 @@ const SetTarget = () => {
         }
     }, [selectedType, selectedId, maps, setTargetData]);
 
-    if (!maps || mapTypes.length === 0) {
-        return (
-            <View style={{ padding: 12 }}>
+    if(!maps || mapTypes.length === 0){
+        return(
+            <View style={styles.container}>
                 <Text>No maps loaded.</Text>
             </View>
         );
     }
 
-    return (
-        <View style={{ padding: 12, gap: 8 }}>
-            <Text style={{ fontWeight: "600", fontSize: 16 }}>Set Target</Text>
+    return(
+        <View style={styles.container}>
+            <Text style={styles.title}>Set Target</Text>
 
-            <Text style={{ marginTop: 8 }}>Category</Text>
-            <Picker
-                selectedValue={selectedType}
-                onValueChange={(val) => {
-                    setSelectedType(val);
-                    const locs = maps?.[val] || [];
-                    setSelectedId(locs.length ? String(locs[0].id) : "");
-                }}
-            >
-                {mapTypes.map((t) => (
-                    <Picker.Item key={t} label={t} value={t} />
-                ))}
-            </Picker>
+            <Text style={styles.label}>Category</Text>
+            <View style={styles.pickerBox}>
+                <Picker
+                    mode="dropdown"
+                    selectedValue={selectedType}
+                    onValueChange={(val) => {
+                        setSelectedType(val);
+                        const locs = maps?.[val] || [];
+                        setSelectedId(locs.length ? String(locs[0].id) : "");
+                    }}
+                    dropdownIconColor="black"
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
+                >
+                    {mapTypes.map((t) => (
+                        <Picker.Item
+                            key={t}
+                            label={t}
+                            value={t}
+                            color="black"
+                        />
+                    ))}
+                </Picker>
+            </View>
 
-            <Text>Location</Text>
-            <Picker
-                selectedValue={selectedId}
-                onValueChange={(val) => setSelectedId(String(val))}
-                enabled={locations.length > 0}
-            >
-                {locations.map((l) => (
-                    <Picker.Item
-                        key={`${selectedType}-${l.id}`}
-                        label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
-                        value={String(l.id)}
-                    />
-                ))}
-            </Picker>
+            <Text style={styles.label}>Location</Text>
+            <View style={styles.pickerBox}>
+                <Picker
+                    mode="dropdown"
+                    selectedValue={selectedId}
+                    onValueChange={(val) => setSelectedId(String(val))}
+                    enabled={locations.length > 0}
+                    dropdownIconColor="black"
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
+                >
+                    {locations.map((l) => (
+                        <Picker.Item
+                            key={`${selectedType}-${l.id}`}
+                            label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
+                            value={String(l.id)}
+                            color="black"
+                        />
+                    ))}
+                </Picker>
+            </View>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 18,
+        gap: 12,
+        marginTop: 10,
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "700",
+        marginBottom: 12,
+    },
+    label: {
+        fontSize: 16,
+        marginTop: 10,
+        marginBottom: 6,
+        fontWeight: "500",
+    },
+    pickerBox: {
+        borderWidth: 2,
+        borderColor: "black",
+        borderRadius: 10,
+        overflow: "hidden",
+        height: 65,
+        justifyContent: "center",
+    },
+    picker: {
+        color: "black",
+        height: 65,
+        marginTop: -3,
+    },
+    pickerItem: {
+        fontSize: 16,
+        color: "black",
+        height: 65,
+    },
+});
 
 export default SetTarget;

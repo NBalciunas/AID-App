@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 24,
         letterSpacing: 1.2,
+        fontFamily: 'Poppins-Bold',
     },
     block: {
         marginBottom: 24,
