@@ -14,7 +14,7 @@ const Compass = () => {
                 {hasInfo ? `Heading: ${heading.toFixed(1)}° (${headingLabel})` : "Heading: [NO INFO]"}
             </Text>
 
-            <DirectionPointer angle={hasInfo ? Math.round(heading) : 0}/>
+            <DirectionPointer angle={hasInfo ? ((360 - Math.round(heading)) % 360) : 0}/>
         </View>
     );
 };

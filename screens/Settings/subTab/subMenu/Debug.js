@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 
@@ -7,7 +7,7 @@ const Debug = () => {
     const {targetData, coords, bearingToTarget, relativeAngle, distanceMeters, heading, headingLabel} = useAppContext();
 
     return(
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>DEBUG</Text>
 
             <View style={styles.block}>
@@ -55,7 +55,7 @@ const Debug = () => {
             )}
 
             <StatusBar style="auto" />
-        </View>
+        </ScrollView>
     );
 };
 
@@ -67,11 +67,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     title: {
-        fontSize: 26,
+        fontSize: 22,
         fontWeight: "700",
-        textAlign: "center",
-        marginBottom: 24,
-        letterSpacing: 1.2,
+        marginBottom: 12,
         fontFamily: 'Poppins-Bold',
     },
     block: {

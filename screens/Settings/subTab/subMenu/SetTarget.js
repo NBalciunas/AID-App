@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "700",
         marginBottom: 12,
+        fontFamily: 'Poppins-Bold',
     },
     label: {
         fontSize: 16,

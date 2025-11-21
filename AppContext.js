@@ -55,48 +55,48 @@ export const AppProvider = ({ children }) => {
 
         (
             async () => {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            setPermissionStatus(status === "granted" ? "granted" : "denied");
-            if(status !== "granted"){
-                console.warn("Location/heading permission denied");
-                return;
-            }
-
-            posSubRef.current = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.BestForNavigation,
-                    timeInterval: 1000,
-                    distanceInterval: 0.5,
-                },
-                (loc) => {
-                    if (!mounted) return;
-                    const c = loc.coords;
-                    setCoords((prev) => {
-                        if(
-                            prev &&
-                            prev.latitude === c.latitude &&
-                            prev.longitude === c.longitude &&
-                            prev.accuracy === c.accuracy &&
-                            prev.speed === c.speed &&
-                            prev.heading === c.heading
-                        )
-                        {
-                            return prev;
-                        }
-                        return c;
-                    });
-                    setLastFixAt(Date.now());
-                }
-            );
-
-            headSubRef.current = await Location.watchHeadingAsync((h) => {
-                if(!mounted){
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                setPermissionStatus(status === "granted" ? "granted" : "denied");
+                if(status !== "granted"){
+                    console.warn("Location/heading permission denied");
                     return;
                 }
-                const raw = typeof h.trueHeading === "number" && !isNaN(h.trueHeading) ? h.trueHeading : h.magHeading;
-                updateHeading(raw);
-            });
-        })();
+
+                posSubRef.current = await Location.watchPositionAsync(
+                    {
+                        accuracy: Location.Accuracy.BestForNavigation,
+                        timeInterval: 1000,
+                        distanceInterval: 0.5,
+                    },
+                    (loc) => {
+                        if (!mounted) return;
+                        const c = loc.coords;
+                        setCoords((prev) => {
+                            if(
+                                prev &&
+                                prev.latitude === c.latitude &&
+                                prev.longitude === c.longitude &&
+                                prev.accuracy === c.accuracy &&
+                                prev.speed === c.speed &&
+                                prev.heading === c.heading
+                            )
+                            {
+                                return prev;
+                            }
+                            return c;
+                        });
+                        setLastFixAt(Date.now());
+                    }
+                );
+
+                headSubRef.current = await Location.watchHeadingAsync((h) => {
+                    if(!mounted){
+                        return;
+                    }
+                    const raw = typeof h.trueHeading === "number" && !isNaN(h.trueHeading) ? h.trueHeading : h.magHeading;
+                    updateHeading(raw);
+                });
+            })();
 
         return () => {
             mounted = false;
@@ -107,14 +107,15 @@ export const AppProvider = ({ children }) => {
         };
     }, []);
 
-    const { bearingToTarget, relativeAngle, distanceMeters, headingLabel } =
+    const headingLabel = dirStr(heading);
+
+    const { bearingToTarget, relativeAngle, distanceMeters } =
         useMemo(() => {
             if(!coords || heading == null || !targetData?.location){
                 return {
                     bearingToTarget: null,
                     relativeAngle: null,
                     distanceMeters: null,
-                    headingLabel: dirStr(null),
                 };
             }
 
@@ -141,7 +142,6 @@ export const AppProvider = ({ children }) => {
                 bearingToTarget: brng,
                 relativeAngle: rel,
                 distanceMeters: dist,
-                headingLabel: dirStr(heading),
             };
         }, [coords, heading, targetData]);
 
@@ -151,7 +151,7 @@ export const AppProvider = ({ children }) => {
                 // inputs
                 targetData, setTargetData, coords, heading,
 
-                // sensors control (left exposed in case you feed custom data)
+                // sensors control (left exposed)
                 setCoords, updateHeading,
 
                 // derived
