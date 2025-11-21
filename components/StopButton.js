@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, StyleSheet } from "react-native";
 import { useAppContext } from "../AppContext";
 
 const HOLD_TIME = 1000;
@@ -38,14 +38,12 @@ const StopButton = () => {
 
     const onPressOut = () => {
         clearTimer();
-
         if(isReady.current){
             setTargetData({
                 location_name: "",
-                location: null
+                location: null,
             });
         }
-
         setProgress(0);
     };
 
@@ -53,38 +51,50 @@ const StopButton = () => {
         <Pressable
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-            style={{
-                width: 220,
-                paddingVertical: 12,
-                borderRadius: 10,
-                backgroundColor: "#b30000",
-                overflow: "hidden",
-                marginTop: 20,
-            }}
+            style={styles.button}
         >
             <View
-                style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: `${progress * 100}%`,
-                    backgroundColor: progress >= 1 ? "#00aa00" : "#ff4444",
-                }}
+                style={[
+                    styles.progressFill,
+                    {
+                        width: `${progress * 100}%`,
+                        backgroundColor: progress >= 1 ? "#a40000" : "#ff6666",
+                    },
+                ]}
             />
-
-            <Text
-                style={{
-                    color: "white",
-                    fontSize: 18,
-                    fontWeight: "700",
-                    textAlign: "center",
-                }}
-            >
+            <Text style={styles.buttonText}>
                 {progress >= 1 ? "RELEASE TO STOP" : "HOLD TO STOP"}
             </Text>
         </Pressable>
     );
 };
+
+const styles = StyleSheet.create({
+    button: {
+        width: 230,
+        paddingVertical: 16,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: "#cc0000",
+        backgroundColor: "#ffe5e5",
+        overflow: "hidden",
+        marginTop: 20,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    progressFill: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+    },
+    buttonText: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#660000",
+        textAlign: "center",
+        fontFamily: "Poppins-Bold",
+    },
+});
 
 export default StopButton;
