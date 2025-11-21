@@ -14,7 +14,7 @@ const LocationList = () => {
 
                     {locations.map((loc) => (
                         <Text key={`${type}-${loc.id}`} style={styles.location}>
-                            {loc.id}: ({loc.lat}, {loc.lon}) → {loc.connected_to.join(", ")}
+                            {loc.id}: ({loc.lat}, {loc.lon}) -> {loc.connected_to.join(", ")}
                         </Text>
                     ))}
                 </View>
