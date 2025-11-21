@@ -26,26 +26,31 @@ const Debug = () => {
             </View>
 
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>Heading</Text>
+                <Text style={styles.blockTitle}>HEADING</Text>
 
                 <Text style={styles.code}>
-                    Compass: {heading != null ? heading.toFixed(1) : "?"}°{"\n"}
-                    Label: {headingLabel}
+                    Compass: {heading != null ? `${heading.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                    Label: {headingLabel || "[NO INFO]"}
                 </Text>
             </View>
 
-            {targetData?.location && coords && (
+            {targetData?.location && coords ? (
                 <View style={styles.block}>
-                    <Text style={styles.blockTitle}>Target</Text>
+                    <Text style={styles.blockTitle}>TARGET</Text>
 
                     <Text style={styles.code}>
-                        Name: {targetData.location_name}{"\n"}
-                        Lat: {targetData.location.lat}{"\n"}
-                        Lon: {targetData.location.lon}{"\n"}
-                        Bearing: {bearingToTarget?.toFixed(1)}°{"\n"}
-                        Relative: {relativeAngle?.toFixed(1)}°{"\n"}
-                        Distance: {distanceMeters?.toFixed(3)} m
+                        Name: {targetData.location_name || "[NO INFO]"}{"\n"}
+                        Lat: {targetData.location?.lat ?? "[NO INFO]"}{"\n"}
+                        Lon: {targetData.location?.lon ?? "[NO INFO]"}{"\n"}
+                        Bearing: {bearingToTarget != null ? `${bearingToTarget.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                        Relative: {relativeAngle != null ? `${relativeAngle.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                        Distance: {distanceMeters != null ? `${distanceMeters.toFixed(3)} m` : "[NO INFO]"}
                     </Text>
+                </View>
+            ) : (
+                <View style={styles.block}>
+                    <Text style={styles.blockTitle}>TARGET</Text>
+                    <Text style={styles.code}>[NO TARGET SELECTED]</Text>
                 </View>
             )}
 

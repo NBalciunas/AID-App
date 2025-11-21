@@ -9,7 +9,7 @@ const toDeg = (rad) => (rad * 180) / Math.PI;
 const smoothLerp = (prev, next, alpha = 0.15) => prev == null ? next : (1 - alpha) * prev + alpha * next;
 
 const dirStr = (deg) => {
-    if (deg == null) return "...";
+    if (deg == null) return null;
     if (deg >= 337.5 || deg < 22.5) return "N";
     if (deg < 67.5) return "NE";
     if (deg < 112.5) return "E";
@@ -112,7 +112,7 @@ export const AppProvider = ({ children }) => {
             if(!coords || heading == null || !targetData?.location){
                 return {
                     bearingToTarget: null,
-                    relativeAngle: 0,
+                    relativeAngle: null,
                     distanceMeters: null,
                     headingLabel: dirStr(null),
                 };
