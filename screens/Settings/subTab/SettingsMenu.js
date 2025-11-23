@@ -11,10 +11,6 @@ const Debug = () => {
         <View style={styles.container}>
             <SettingItem onPress={() => navigation.navigate('ConnectBT')} title="Connect Bluetooth" />
             <Divider style={styles.divider}/>
-            <SettingItem onPress={() => navigation.navigate('LocationList')} title="Location List" />
-            <Divider style={styles.divider}/>
-            <SettingItem onPress={() => navigation.navigate('SetTarget')} title="Set Target" />
-            <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('Debug')} title="Debug" />
             <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('Compass')} title="Compass" />

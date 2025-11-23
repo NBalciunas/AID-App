@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useAppContext } from "../AppContext";
 import { hasPrev, hasNext, setPrevLoc, setNextLoc } from "../helpers/setPrevNextLoc";
@@ -13,6 +13,9 @@ const NavigationButtons = () => {
     const canPrev = hasPrev(allLocations, currentLoc);
     const canNext = hasNext(allLocations, currentLoc);
 
+    const [prevPressed, setPrevPressed] = useState(false);
+    const [nextPressed, setNextPressed] = useState(false);
+
     return (
         <View style={styles.container}>
             <Text style={styles.goalTitle}>
@@ -22,9 +25,12 @@ const NavigationButtons = () => {
             <View style={styles.row}>
                 <Pressable
                     onPress={() => setPrevLoc(type, allLocations, currentLoc, setTargetData)}
+                    onPressIn={() => setPrevPressed(true)}
+                    onPressOut={() => setPrevPressed(false)}
                     disabled={!canPrev}
                     style={[
                         styles.navButton,
+                        prevPressed && styles.buttonPressed,
                         !canPrev && styles.disabledButton
                     ]}
                 >
@@ -32,9 +38,12 @@ const NavigationButtons = () => {
                 </Pressable>
                 <Pressable
                     onPress={() => setNextLoc(type, allLocations, currentLoc, setTargetData)}
+                    onPressIn={() => setNextPressed(true)}
+                    onPressOut={() => setNextPressed(false)}
                     disabled={!canNext}
                     style={[
                         styles.navButton,
+                        nextPressed && styles.buttonPressed,
                         !canNext && styles.disabledButton
                     ]}
                 >
@@ -79,7 +88,10 @@ const styles = StyleSheet.create({
     disabledButton: {
         borderColor: "#bfbfbf",
         opacity: 0.4,
-    }
+    },
+    buttonPressed: {
+        backgroundColor: "#e0e0e0",
+    },
 });
 
 export default NavigationButtons;
