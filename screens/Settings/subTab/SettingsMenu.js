@@ -12,8 +12,6 @@ const Debug = () => {
             <SettingItem onPress={() => navigation.navigate('ConnectBT')} title="Connect Bluetooth" />
             <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('Debug')} title="Debug" />
-            <Divider style={styles.divider}/>
-            <SettingItem onPress={() => navigation.navigate('Compass')} title="Compass" />
             <Text style={styles.versionText}>{appConfig.expo.name} v{appConfig.expo.version}</Text>
         </View>
     );

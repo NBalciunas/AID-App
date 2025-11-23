@@ -4,6 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 import setTarget from "../../../../helpers/setTarget";
+import DirectionPointer from "../../../../components/DirectionPointer";
 
 const Debug = () => {
     const { maps, targetData, setTargetData, coords, bearingToTarget, relativeAngle, distanceMeters, heading, headingLabel } = useAppContext();
@@ -13,6 +14,7 @@ const Debug = () => {
     const [expandType, setExpandType] = React.useState(true);
     const [expandLoc, setExpandLoc] = React.useState(true);
     const locations = maps?.[type] || [];
+    const hasInfo = heading != null && headingLabel;
 
     React.useEffect(() => {
         if(!types.length){
@@ -86,6 +88,14 @@ const Debug = () => {
                 </Text>
             </View>
 
+            {/* ---------------------- COMPASS ---------------------- */}
+            <View style={styles.block}>
+                <Text style={styles.blockTitle}>COMPASS</Text>
+                <View style={styles.compassWrapper}>
+                    <DirectionPointer angle={hasInfo ? ((360 - Math.round(heading)) % 360) : 0} />
+                </View>
+            </View>
+
             {/* ---------------------- TARGET ---------------------- */}
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>TARGET</Text>
@@ -118,56 +128,42 @@ const Debug = () => {
                 ))}
             </View>
 
-            {/* ---------------------- SET TARGET (INLINE) ---------------------- */}
+            {/* ---------------------- SET TARGET ---------------------- */}
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>SET TARGET</Text>
 
                 {/* CATEGORY */}
-                <Text
-                    style={styles.blockTitle}
-                    onPress={() => setExpandType(!expandType)}
-                >
-                    CATEGORY {expandType ? "▲" : "▼"}
-                </Text>
-                {expandType && (
-                    <View style={styles.frameBox}>
-                        <Picker
-                            selectedValue={type}
-                            onValueChange={onChangeType}
-                            style={styles.picker}
-                        >
-                            {types.map((t) => (
-                                <Picker.Item key={t} label={t} value={t} color="black" />
-                            ))}
-                        </Picker>
-                    </View>
-                )}
+                <Text style={styles.blockTitle}>CATEGORY</Text>
+                <View style={styles.frameBox}>
+                    <Picker
+                        selectedValue={type}
+                        onValueChange={onChangeType}
+                        style={styles.picker}
+                    >
+                        {types.map((t) => (
+                            <Picker.Item key={t} label={t} value={t} color="black" />
+                        ))}
+                    </Picker>
+                </View>
 
                 {/* LOCATION */}
-                <Text
-                    style={styles.blockTitle}
-                    onPress={() => setExpandLoc(!expandLoc)}
-                >
-                    LOCATION {expandLoc ? "▲" : "▼"}
-                </Text>
-                {expandLoc && (
-                    <View style={styles.frameBox}>
-                        <Picker
-                            selectedValue={locId}
-                            onValueChange={onChangeLocation}
-                            style={styles.picker}
-                        >
-                            {locations.map((l) => (
-                                <Picker.Item
-                                    key={`${type}-${l.id}`}
-                                    label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
-                                    value={String(l.id)}
-                                    color="black"
-                                />
-                            ))}
-                        </Picker>
-                    </View>
-                )}
+                <Text style={styles.blockTitle}>LOCATION</Text>
+                <View style={styles.frameBox}>
+                    <Picker
+                        selectedValue={locId}
+                        onValueChange={onChangeLocation}
+                        style={styles.picker}
+                    >
+                        {locations.map((l) => (
+                            <Picker.Item
+                                key={`${type}-${l.id}`}
+                                label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
+                                value={String(l.id)}
+                                color="black"
+                            />
+                        ))}
+                    </Picker>
+                </View>
             </View>
 
             <StatusBar style="auto" />
@@ -176,18 +172,6 @@ const Debug = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 40,
-        paddingHorizontal: 24,
-        backgroundColor: "#fff",
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: "700",
-        marginBottom: 12,
-        fontFamily: "Poppins-Bold",
-    },
     block: {
         marginBottom: 24,
         padding: 16,
@@ -204,15 +188,20 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
         fontFamily: "Poppins-Bold",
     },
-    subheader: {
-        fontSize: 14,
-        marginBottom: 4,
-        fontFamily: "monospace",
-    },
     code: {
         fontSize: 14,
         fontFamily: "monospace",
         lineHeight: 20,
+    },
+    compassWrapper: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    container: {
+        flex: 1,
+        paddingTop: 40,
+        paddingHorizontal: 24,
+        backgroundColor: "#fff",
     },
     frameBox: {
         borderWidth: 1.5,
@@ -227,6 +216,17 @@ const styles = StyleSheet.create({
         height: 55,
         fontFamily: "monospace",
         color: "black",
+    },
+    subheader: {
+        fontSize: 14,
+        marginBottom: 4,
+        fontFamily: "monospace",
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "700",
+        marginBottom: 12,
+        fontFamily: "Poppins-Bold",
     },
 });
 
