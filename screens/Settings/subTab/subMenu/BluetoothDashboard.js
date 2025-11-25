@@ -10,7 +10,7 @@ const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
 
 const manager = new BleManager();
 
-const ConnectBT = () => {
+const BluetoothDashboard = () => {
     const [device, setDevice] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [logs, setLogs] = useState([]);
@@ -252,4 +252,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ConnectBT;
+export default BluetoothDashboard;

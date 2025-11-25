@@ -9,7 +9,7 @@ const Debug = () => {
 
     return(
         <View style={styles.container}>
-            <SettingItem onPress={() => navigation.navigate('ConnectBT')} title="Connect Bluetooth" />
+            <SettingItem onPress={() => navigation.navigate('BluetoothDashboard')} title="Connect Bluetooth" />
             <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('Debug')} title="Debug" />
             <Text style={styles.versionText}>{appConfig.expo.name} v{appConfig.expo.version}</Text>
