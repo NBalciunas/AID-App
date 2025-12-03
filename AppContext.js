@@ -1,6 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState, createContext, useContext } from "react";
+import React, { useEffect, useRef, useState, createContext, useContext} from "react";
 import * as Location from "expo-location";
+import { BleManager } from "react-native-ble-plx";
 import mapsIndex from "./assets/maps";
+import connectBLE from "./helpers/connectBLE";
+import sendMessageBLE from "./helpers/sendMessageBLE";
 
 const AppContext = createContext(null);
 
@@ -20,11 +23,15 @@ const dirStr = (deg) => {
     return "NW";
 };
 
+const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
+const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
+const bleManager = new BleManager();
+
 export const AppProvider = ({ children }) => {
     const [maps, setMaps] = useState({});
     const [targetData, setTargetData] = useState({
         location_name: "",
-        location: null
+        location: null,
     });
     const [coords, setCoords] = useState(null);
     const [heading, setHeading] = useState(null);
@@ -33,6 +40,53 @@ export const AppProvider = ({ children }) => {
     const [lastFixAt, setLastFixAt] = useState(null);
     const posSubRef = useRef(null);
     const headSubRef = useRef(null);
+
+    const [bleDevice, setBleDevice] = useState(null);
+    const [bleConnected, setBleConnected] = useState(false);
+    const [bleLogs, setBleLogs] = useState([]);
+
+    const addBleLog = (msg) => {
+        setBleLogs((prev) => [
+            ...prev,
+            `${new Date().toLocaleTimeString()} → ${msg}`,
+        ]);
+    };
+
+    const connectESP32 = async () => {
+        try{
+            const d = await connectBLE({
+                manager: bleManager,
+                onLog: addBleLog,
+                deviceNameFilter: "ESP32",
+            });
+            setBleDevice(d);
+            setBleConnected(true);
+        }
+        catch(e){
+            addBleLog(`Connection error: ${e.message}`);
+            setBleConnected(false);
+        }
+    };
+
+    const sendBleMessage = async (message) => {
+        if(!bleDevice){
+            addBleLog("No BLE device connected");
+            return;
+        }
+
+        try{
+            await sendMessageBLE({
+                device: bleDevice,
+                message,
+                serviceUUID: SERVICE_UUID,
+                characteristicUUID: CHARACTERISTIC_UUID,
+                onLog: addBleLog,
+            });
+        }
+        catch(e){
+            // already logged in helper
+        }
+    };
 
     const updateHeading = (raw) => {
         if (typeof raw !== "number" || Number.isNaN(raw)) return;
@@ -53,50 +107,43 @@ export const AppProvider = ({ children }) => {
 
         setMaps(mapsIndex);
 
-        (
-            async () => {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                setPermissionStatus(status === "granted" ? "granted" : "denied");
-                if(status !== "granted"){
-                    console.warn("Location/heading permission denied");
-                    return;
-                }
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            setPermissionStatus(status === "granted" ? "granted" : "denied");
+            if(status !== "granted"){
+                console.warn("Location/heading permission denied");
+                return;
+            }
 
-                posSubRef.current = await Location.watchPositionAsync(
-                    {
-                        accuracy: Location.Accuracy.BestForNavigation,
-                        timeInterval: 1000,
-                        distanceInterval: 0.5,
-                    },
-                    (loc) => {
-                        if (!mounted) return;
-                        const c = loc.coords;
-                        setCoords((prev) => {
-                            if(
-                                prev &&
-                                prev.latitude === c.latitude &&
-                                prev.longitude === c.longitude &&
-                                prev.accuracy === c.accuracy &&
-                                prev.speed === c.speed &&
-                                prev.heading === c.heading
-                            )
-                            {
-                                return prev;
-                            }
-                            return c;
-                        });
-                        setLastFixAt(Date.now());
-                    }
-                );
-
-                headSubRef.current = await Location.watchHeadingAsync((h) => {
+            posSubRef.current = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.BestForNavigation,
+                    timeInterval: 1000,
+                    distanceInterval: 0.5,
+                },
+                (loc) => {
                     if(!mounted){
                         return;
                     }
-                    const raw = typeof h.trueHeading === "number" && !isNaN(h.trueHeading) ? h.trueHeading : h.magHeading;
-                    updateHeading(raw);
-                });
-            })();
+                    const c = loc.coords;
+                    setCoords((prev) => {
+                        if(prev && prev.latitude === c.latitude && prev.longitude === c.longitude && prev.accuracy === c.accuracy && prev.speed === c.speed && prev.heading === c.heading){
+                            return prev;
+                        }
+                        return c;
+                    });
+                    setLastFixAt(Date.now());
+                }
+            );
+
+            headSubRef.current = await Location.watchHeadingAsync((h) => {
+                if(!mounted){
+                    return;
+                }
+                const raw = typeof h.trueHeading === "number" && !isNaN(h.trueHeading) ? h.trueHeading : h.magHeading;
+                updateHeading(raw);
+            });
+        })();
 
         return () => {
             mounted = false;
@@ -109,10 +156,10 @@ export const AppProvider = ({ children }) => {
 
     const headingLabel = dirStr(heading);
 
-    const { bearingToTarget, relativeAngle, distanceMeters } =
-        useMemo(() => {
+    const { bearingToTarget, relativeAngle, distanceMeters } = React.useMemo(
+        () => {
             if(!coords || heading == null || !targetData?.location){
-                return {
+                return{
                     bearingToTarget: null,
                     relativeAngle: null,
                     distanceMeters: null,
@@ -138,30 +185,45 @@ export const AppProvider = ({ children }) => {
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             const dist = R * c;
 
-            return{
-                bearingToTarget: brng,
-                relativeAngle: rel,
-                distanceMeters: dist,
-            };
-        }, [coords, heading, targetData]);
+            return { bearingToTarget: brng, relativeAngle: rel, distanceMeters: dist };
+        },
+        [coords, heading, targetData]
+    );
 
-    return(
+    return (
         <AppContext.Provider
             value={{
                 // inputs
-                targetData, setTargetData, coords, heading,
+                targetData,
+                setTargetData,
+                coords,
+                heading,
 
                 // sensors control (left exposed)
-                setCoords, updateHeading,
+                setCoords,
+                updateHeading,
 
                 // derived
-                bearingToTarget, relativeAngle, distanceMeters, headingLabel,
+                bearingToTarget,
+                relativeAngle,
+                distanceMeters,
+                headingLabel,
 
                 // meta
-                permissionStatus, lastFixAt,
+                permissionStatus,
+                lastFixAt,
 
                 // map data
-                maps, setMaps,
+                maps,
+                setMaps,
+
+                // BLE
+                bleDevice,
+                bleConnected,
+                bleLogs,
+                addBleLog,
+                connectESP32,
+                sendBleMessage,
             }}
         >
             {children}

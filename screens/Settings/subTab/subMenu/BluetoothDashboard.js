@@ -1,118 +1,53 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TextInput, Pressable, PermissionsAndroid, Platform } from "react-native";
-import { BleManager } from "react-native-ble-plx";
-import { Buffer } from "buffer";
-
-global.Buffer = global.Buffer || Buffer;
-
-const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
-const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
-
-const manager = new BleManager();
+import { View, Text, ScrollView, StyleSheet, TextInput, Pressable } from "react-native";
+import { useAppContext } from "../../../../AppContext";
 
 const BluetoothDashboard = () => {
-    const [device, setDevice] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
-    const [logs, setLogs] = useState([]);
+    const { bleConnected, bleDevice, bleLogs, connectESP32, sendBleMessage } = useAppContext();
     const [message, setMessage] = useState("");
 
-    const addLog = (msg) => {
-        setLogs((p) => [...p, `${new Date().toLocaleTimeString()} → ${msg}`]);
-    };
-
-    const requestPermissions = async () => {
-        if(Platform.OS === "android"){
-            addLog("Requesting Android BT permissions…");
-            await PermissionsAndroid.requestMultiple([
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-                PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-            ]);
-            addLog("Permissions granted!");
+    const handleConnectPress = () => {
+        if(!bleConnected){
+            connectESP32();
         }
     };
 
-    const scanForESP32 = async () => {
-        await requestPermissions();
-        addLog("Scanning for ESP32…");
-
-        manager.startDeviceScan(null, null, (error, scannedDevice) => {
-            if(error){
-                return addLog(`Scan error: ${error.message}`);
-            }
-
-            if(scannedDevice?.name?.includes("ESP32")){
-                addLog(`Found ESP32: ${scannedDevice.name}`);
-                manager.stopDeviceScan();
-                connectDevice(scannedDevice);
-            }
-        });
-    };
-
-    const connectDevice = async (dev) => {
-        try{
-            addLog("Connecting to ESP32…");
-            const d = await dev.connect();
-            await d.discoverAllServicesAndCharacteristics();
-
-            setDevice(d);
-            setIsConnected(true);
-            addLog("Connected!");
-        }
-        catch(e){
-            addLog(`Connection error: ${e.message}`);
-        }
-    };
-
-    const sendToESP32 = async () => {
-        if(!device || !message.trim()){
+    const handleSendPress = async () => {
+        const trimmed = message.trim();
+        if(!trimmed){
             return;
         }
-
-        const base64 = Buffer.from(message).toString("base64");
-        addLog(`Sending '${message}' (base64: ${base64})`);
-
-        try{
-            await device.writeCharacteristicWithResponseForService(
-                SERVICE_UUID,
-                CHARACTERISTIC_UUID,
-                base64
-            );
-            addLog(`Sent '${message}' successfully`);
-            setMessage("");
-        }
-        catch(e){
-            addLog(`Write error: ${e.message}`);
-        }
+        await sendBleMessage(trimmed);
+        setMessage("");
     };
 
     return(
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>BLUETOOTH DEBUG</Text>
+            <Text style={styles.title}>BLUETOOTH DASHBOARD</Text>
 
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>CONNECT</Text>
 
                 <Pressable
-                    onPress={!isConnected ? scanForESP32 : undefined}
+                    onPress={handleConnectPress}
                     style={[
                         styles.connectBtn,
-                        isConnected && styles.connectBtnActive,
+                        bleConnected && styles.connectBtnActive,
                     ]}
                 >
                     <Text
                         style={[
                             styles.connectBtnText,
-                            isConnected && styles.connectBtnTextActive,
+                            bleConnected && styles.connectBtnTextActive,
                         ]}
                     >
-                        {isConnected ? "CONNECTED" : "CONNECT BT"}
+                        {bleConnected ? "CONNECTED" : "CONNECT BT"}
                     </Text>
                 </Pressable>
 
-                {isConnected && (
+                {bleConnected && (
                     <Text style={styles.code}>
-                        Connected to: {device?.name || "Unknown"}
+                        Connected to: {bleDevice?.name || "Unknown"}
                     </Text>
                 )}
             </View>
@@ -120,7 +55,7 @@ const BluetoothDashboard = () => {
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>SEND MESSAGE</Text>
 
-                {!isConnected ? (
+                {!bleConnected ? (
                     <Text style={styles.code}>[BT NOT CONNECTED]</Text>
                 ) : (
                     <View style={styles.sendRow}>
@@ -132,7 +67,7 @@ const BluetoothDashboard = () => {
                             placeholderTextColor="#555"
                         />
 
-                        <Pressable style={styles.sendBtn} onPress={sendToESP32}>
+                        <Pressable style={styles.sendBtn} onPress={handleSendPress}>
                             <Text style={styles.sendBtnText}>SEND</Text>
                         </Pressable>
                     </View>
@@ -143,8 +78,10 @@ const BluetoothDashboard = () => {
                 <Text style={styles.blockTitle}>LOGS</Text>
 
                 <View style={styles.logArea}>
-                    {logs.map((l, i) => (
-                        <Text key={i} style={styles.code}>{l}</Text>
+                    {bleLogs.map((l, i) => (
+                        <Text key={i} style={styles.code}>
+                            {l}
+                        </Text>
                     ))}
                 </View>
             </View>
