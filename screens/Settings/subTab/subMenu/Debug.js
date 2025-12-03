@@ -4,6 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 import setTarget from "../../../../helpers/setTarget";
+import isOnTarget from "../../../../helpers/isOnTarget";
 import DirectionPointer from "../../../../components/DirectionPointer";
 
 const Debug = () => {
@@ -11,10 +12,9 @@ const Debug = () => {
     const types = Object.keys(maps || {});
     const [type, setTypeState] = React.useState(types[0] || "");
     const [locId, setLocId] = React.useState("");
-    const [expandType, setExpandType] = React.useState(true);
-    const [expandLoc, setExpandLoc] = React.useState(true);
     const locations = maps?.[type] || [];
     const hasInfo = heading != null && headingLabel;
+    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 3);
 
     React.useEffect(() => {
         if(!types.length){
@@ -113,6 +113,14 @@ const Debug = () => {
                 )}
             </View>
 
+            {/* ---------------------- ON TARGET? ---------------------- */}
+            <View style={styles.block}>
+                <Text style={styles.blockTitle}>ON TARGET?</Text>
+                <Text style={styles.code}>
+                    {onTarget ? "YES (inside target radius)" : "NO (outside target radius)"}
+                </Text>
+            </View>
+
             {/* ---------------------- LOCATION LIST ---------------------- */}
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>LOCATIONS</Text>
@@ -133,7 +141,7 @@ const Debug = () => {
                 <Text style={styles.blockTitle}>SET TARGET</Text>
 
                 {/* CATEGORY */}
-                <Text style={styles.blockTitle}>CATEGORY</Text>
+                <Text style={styles.subheader}>CATEGORY</Text>
                 <View style={styles.frameBox}>
                     <Picker
                         selectedValue={type}
@@ -147,7 +155,7 @@ const Debug = () => {
                 </View>
 
                 {/* LOCATION */}
-                <Text style={styles.blockTitle}>LOCATION</Text>
+                <Text style={styles.subheader}>LOCATION</Text>
                 <View style={styles.frameBox}>
                     <Picker
                         selectedValue={locId}
