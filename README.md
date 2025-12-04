@@ -1,8 +1,12 @@
-# AIDemApp
+# AID App
+*(AI + Dementia) App*
 
-Simple guidance app.
 
-README is unfinished.
+A simple guidance App. WIP. README is unfinished.
+
+## Features
+- labas
+- labas
 
 ### To build without Google Play
 
