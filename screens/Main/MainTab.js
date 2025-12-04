@@ -7,10 +7,10 @@ import NavigationButtons from "../../components/NavigationButtons";
 import StopButton from "../../components/StopButton";
 import isOnTarget from "../../helpers/isOnTarget";
 import { hasNext, setNextLoc } from "../../helpers/setPrevNextLoc"
-import determineNextLocDir from "../../helpers/determineNextLocDir";
+import determineLocDir from "../../helpers/determineLocDir";
 
 const MainTab = () => {
-    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearing } = useAppContext();
+    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget } = useAppContext();
 
     const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
     const type = targetData?.location_name?.split(" – ")?.[0];
@@ -27,11 +27,15 @@ const MainTab = () => {
             return;
         }
 
-        alert("Reached target!");
         if(hasNext(allLocations, currentLoc)){
             setNextLoc(type, allLocations, currentLoc, setTargetData);
-            const nextLocDir = determineNextLocDir(heading, bearing);
-            alert(`Next Target Dir: ${nextLocDir}`);
+            const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
+            if(nextLocDir === "R"){
+                alert("Turn Right!");
+            }
+            if(nextLocDir === "L"){
+                alert("Turn Left!");
+            }
             // send message to esp32
         }
         else{

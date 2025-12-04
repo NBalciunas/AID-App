@@ -1,4 +1,4 @@
-const determineNextLocDir = (heading, bearingToTarget, deadZone = 5) => {
+const determineLocDir = (heading, bearingToTarget, deadZone = 5) => {
     if(heading == null || bearingToTarget == null){
         return "A"; // Ahead
     }
@@ -8,7 +8,7 @@ const determineNextLocDir = (heading, bearingToTarget, deadZone = 5) => {
     if(Math.abs(diff) <= deadZone){
         return "A"; // Ahead
     }
-    return diff > 0 ? "R" : "L"; // Right Left
+    return diff > 0 ? "R" : "L"; // Right or Left
 };
 
-export default determineNextLocDir;
+export default determineLocDir;

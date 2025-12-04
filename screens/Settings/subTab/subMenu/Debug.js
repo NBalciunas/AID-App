@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 import setTarget from "../../../../helpers/setTarget";
 import isOnTarget from "../../../../helpers/isOnTarget";
+import determineLocDir from "../../../../helpers/determineLocDir";
 import DirectionPointer from "../../../../components/DirectionPointer";
 
 const Debug = () => {
@@ -15,6 +16,7 @@ const Debug = () => {
     const locations = maps?.[type] || [];
     const hasInfo = heading != null && headingLabel;
     const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
+    const locDir = determineLocDir(heading, bearingToTarget, 5)
 
     React.useEffect(() => {
         if(!types.length){
@@ -79,18 +81,18 @@ const Debug = () => {
                 )}
             </View>
 
-            {/* ---------------------- HEADING ---------------------- */}
+            {/* ---------------------- COMPASS ---------------------- */}
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>HEADING</Text>
                 <Text style={styles.code}>
-                    Compass: {heading != null ? `${heading.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                    Heading: {heading != null ? `${heading.toFixed(1)}°` : "[NO INFO]"}{"\n"}
                     Label: {headingLabel || "[NO INFO]"}
                 </Text>
             </View>
 
-            {/* ---------------------- COMPASS ---------------------- */}
+            {/* ---------------------- POINTER ---------------------- */}
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>COMPASS</Text>
+                <Text style={styles.blockTitle}>DIRECTION POINTER</Text>
                 <View style={styles.compassWrapper}>
                     <DirectionPointer angle={hasInfo ? ((360 - Math.round(heading)) % 360) : 0} />
                 </View>
@@ -118,6 +120,14 @@ const Debug = () => {
                 <Text style={styles.blockTitle}>ON TARGET?</Text>
                 <Text style={styles.code}>
                     {onTarget ? "YES (inside target radius)" : "NO (outside target radius)"}
+                </Text>
+            </View>
+
+            {/* ---------------------- LOCATION DIRECTION ---------------------- */}
+            <View style={styles.block}>
+                <Text style={styles.blockTitle}>LOCATION DIRECTION</Text>
+                <Text style={styles.code}>
+                    Direction : {locDir === "A" ? "Ahead" : locDir === "R" ? "Right" : locDir === "L" ? "Left" : locDir}
                 </Text>
             </View>
 
@@ -154,7 +164,7 @@ const Debug = () => {
                     </Picker>
                 </View>
 
-                {/* LOCATION */}
+                {/* ---------------------- LOCATION ---------------------- */}
                 <Text style={styles.subheader}>LOCATION</Text>
                 <View style={styles.frameBox}>
                     <Picker
