@@ -14,7 +14,7 @@ const Debug = () => {
     const [locId, setLocId] = React.useState("");
     const locations = maps?.[type] || [];
     const hasInfo = heading != null && headingLabel;
-    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 3);
+    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
 
     React.useEffect(() => {
         if(!types.length){
