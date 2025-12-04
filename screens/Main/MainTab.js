@@ -7,22 +7,35 @@ import NavigationButtons from "../../components/NavigationButtons";
 import StopButton from "../../components/StopButton";
 import isOnTarget from "../../helpers/isOnTarget";
 import { hasNext, setNextLoc } from "../../helpers/setPrevNextLoc"
+import determineNextLocDir from "../../helpers/determineNextLocDir";
 
 const MainTab = () => {
-    const { targetData, relativeAngle, distanceMeters, coords } = useAppContext();
+    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearing } = useAppContext();
 
     const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
+    const type = targetData?.location_name?.split(" – ")?.[0];
+    const currentLoc = targetData?.location;
+    const allLocations = maps?.[type] || [];
+
     React.useEffect(() => {
-        if(onTarget){
-            alert("Reached target!");
-            if(hasNext){
-                setNextLoc();
-                // determine next target direction (left or right)
-                // send message to esp32
-            }
-            else{
-                alert("Reached the end!");
-            }
+        if(!onTarget || !targetData?.location){
+            return;
+        }
+
+        if(!type || !allLocations.length){
+            console.warn("Current location not found in maps");
+            return;
+        }
+
+        alert("Reached target!");
+        if(hasNext(allLocations, currentLoc)){
+            setNextLoc(type, allLocations, currentLoc, setTargetData);
+            const nextLocDir = determineNextLocDir(heading, bearing);
+            alert(`Next Target Dir: ${nextLocDir}`);
+            // send message to esp32
+        }
+        else{
+            alert("Reached the end!");
         }
     }, [onTarget]);
 

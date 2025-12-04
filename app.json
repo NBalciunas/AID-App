@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "AIDemApp",
-    "slug": "AIDemApp",
+    "name": "AID App",
+    "slug": "aidapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +21,12 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.nbalciunas.aidemapp"
+      "package": "com.nbalciunas.aidapp",
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,14 +45,16 @@
         "react-native-ble-plx",
         {
           "isBackgroundEnabled": false,
-          "modes": ["central"],
+          "modes": [
+            "central"
+          ],
           "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices"
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "fc1c37af-167b-4ad1-9b3b-114019c79f53"
+        "projectId": "984339d1-9ed2-48a7-81d2-cbd9aeb11ca8"
       }
     }
   }
