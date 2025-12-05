@@ -32,11 +32,15 @@ const MainTab = () => {
             const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
             if(nextLocDir === "R"){
                 alert("Turn Right!");
+                // send message to esp32
             }
-            if(nextLocDir === "L"){
+            else if(nextLocDir === "L"){
                 alert("Turn Left!");
+                // send message to esp32
             }
-            // send message to esp32
+            else if(nextLocDir === "A"){
+                alert("Move Ahead!")
+            }
         }
         else{
             alert("Reached the end!");
