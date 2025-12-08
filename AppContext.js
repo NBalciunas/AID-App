@@ -41,6 +41,8 @@ export const AppProvider = ({ children }) => {
     const posSubRef = useRef(null);
     const headSubRef = useRef(null);
 
+    const [proximitySensitivity, setProximitySensitivity] = useState(15);
+
     const [bleDevice, setBleDevice] = useState(null);
     const [bleConnected, setBleConnected] = useState(false);
     const [bleLogs, setBleLogs] = useState([]);
@@ -216,6 +218,10 @@ export const AppProvider = ({ children }) => {
                 // map data
                 maps,
                 setMaps,
+
+                // sensitivity control
+                proximitySensitivity,
+                setProximitySensitivity,
 
                 // BLE
                 bleDevice,

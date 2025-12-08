@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { useAppContext } from "../../AppContext";
 import TargetButtons from "../../components/TargetButtons";
 import DirectionPointer from "../../components/DirectionPointer";
+import DistanceToTarget from "../../components/DistanceToTarget";
 import NavigationButtons from "../../components/NavigationButtons";
 import StopButton from "../../components/StopButton";
 import isOnTarget from "../../helpers/isOnTarget";
@@ -10,9 +11,9 @@ import determineLocDir from "../../helpers/determineLocDir";
 import getNextPoint from "../../helpers/getNextPoint";
 
 const MainTab = () => {
-    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget } = useAppContext();
+    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget, proximitySensitivity } = useAppContext();
 
-    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 15);
+    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, proximitySensitivity);
     const type = targetData?.location_name?.split(" – ")?.[0];
     const currentLoc = targetData?.location;
     const allLocations = maps?.[type] || [];
@@ -64,6 +65,7 @@ const MainTab = () => {
         <View style={styles.container}>
             {!targetData.location ? <TargetButtons /> : null}
             {targetData.location ? <DirectionPointer angle={ Math.round(relativeAngle || 0) } /> : null}
+            {targetData.location ? <DistanceToTarget distanceMeters={ distanceMeters } /> : null}
             {targetData.location ? <NavigationButtons /> : null}
             {targetData.location ? <StopButton /> : null}
         </View>

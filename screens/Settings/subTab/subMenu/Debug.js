@@ -9,14 +9,15 @@ import determineLocDir from "../../../../helpers/determineLocDir";
 import DirectionPointer from "../../../../components/DirectionPointer";
 
 const Debug = () => {
-    const { maps, targetData, setTargetData, coords, bearingToTarget, relativeAngle, distanceMeters, heading, headingLabel } = useAppContext();
+    const { maps, targetData, setTargetData, coords, bearingToTarget, relativeAngle, distanceMeters, heading, headingLabel, proximitySensitivity, setProximitySensitivity } = useAppContext();
     const types = Object.keys(maps || {});
     const [type, setTypeState] = React.useState(types[0] || "");
     const [locId, setLocId] = React.useState("");
     const locations = maps?.[type] || [];
     const hasInfo = heading != null && headingLabel;
-    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
-    const locDir = determineLocDir(heading, bearingToTarget, 5)
+    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, proximitySensitivity);
+    const SENSITIVITY_OPTIONS = [3, 5, 10, 15, 20, 30, 40, 50];
+    const locDir = determineLocDir(heading, bearingToTarget, 5);
 
     React.useEffect(() => {
         if(!types.length){
@@ -106,9 +107,9 @@ const Debug = () => {
                         Name: {targetData.location_name}{"\n"}
                         Lat: {targetData.location.lat}{"\n"}
                         Lon: {targetData.location.lon}{"\n"}
-                        Bearing: {bearingToTarget?.toFixed(1)}°{"\n"}
-                        Relative: {relativeAngle?.toFixed(1)}°{"\n"}
-                        Distance: {distanceMeters?.toFixed(3)} m
+                        Bearing: {bearingToTarget != null ? `${bearingToTarget.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                        Relative: {relativeAngle != null ? `${relativeAngle.toFixed(1)}°` : "[NO INFO]"}{"\n"}
+                        Distance: {distanceMeters != null ? `${distanceMeters.toFixed(1)} m` : "[NO INFO]"}
                     </Text>
                 ) : (
                     <Text style={styles.code}>[NO TARGET SELECTED]</Text>
@@ -122,6 +123,23 @@ const Debug = () => {
                     {onTarget ? "YES (inside target radius)" : "NO (outside target radius)"}
                 </Text>
             </View>
+
+            {/* ---------------------- SENSITIVITY ---------------------- */}
+            <View style={styles.block}>
+                <Text style={styles.blockTitle}>SET SENSITIVITY</Text>
+                <View style={styles.frameBox}>
+                    <Picker
+                        selectedValue={proximitySensitivity}
+                        onValueChange={setProximitySensitivity}
+                        style={styles.picker}
+                    >
+                        {SENSITIVITY_OPTIONS.map((v) => (
+                            <Picker.Item key={v} label={`${v} m`} value={v} color="black" />
+                        ))}
+                    </Picker>
+                </View>
+            </View>
+
 
             {/* ---------------------- LOCATION DIRECTION ---------------------- */}
             <View style={styles.block}>
