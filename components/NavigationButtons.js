@@ -1,7 +1,45 @@
 import React, {useState} from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useAppContext } from "../AppContext";
-import { hasPrev, hasNext, setPrevLoc, setNextLoc } from "../helpers/setPrevNextLoc";
+import getNextPoint from "../helpers/getNextPoint";
+
+const distanceSq = (lat1, lon1, lat2, lon2) => {
+    const dLat = lat1 - lat2;
+    const dLon = lon1 - lon2;
+    return dLat * dLat + dLon * dLon;
+};
+
+const getPrevPoint = (nodes, currentId) => {
+    if(!nodes?.length || currentId == null){
+        return null;
+    }
+
+    const nodeById = new Map(nodes.map(n => [n.id, n]));
+    const current = nodeById.get(currentId);
+    const first = nodes[0];
+    if(!current || !first){
+        return null;
+    }
+
+    if(current.id === first.id){
+        return null;
+    }
+
+    let neighbors = (current.connected_to || []).map(id => nodeById.get(id)).filter(Boolean);
+
+    let bestNeighborId = null;
+    let bestDist = Infinity;
+
+    for(const neighbor of neighbors){
+        const d = distanceSq(neighbor.lat, neighbor.lon, first.lat, first.lon);
+        if(d < bestDist){
+            bestDist = d;
+            bestNeighborId = neighbor.id;
+        }
+    }
+
+    return bestNeighborId;
+};
 
 const NavigationButtons = () => {
     const { targetData, setTargetData, maps } = useAppContext();
@@ -10,21 +48,53 @@ const NavigationButtons = () => {
     const currentLoc = targetData?.location;
     const allLocations = maps?.[type] || [];
 
-    const canPrev = hasPrev(allLocations, currentLoc);
-    const canNext = hasNext(allLocations, currentLoc);
+    const nextIdForState = currentLoc ? getNextPoint(allLocations, currentLoc.id) : null;
+    const prevIdForState = currentLoc ? getPrevPoint(allLocations, currentLoc.id) : null;
+
+    const canPrev = !!prevIdForState;
+    const canNext = !!nextIdForState;
 
     const [prevPressed, setPrevPressed] = useState(false);
     const [nextPressed, setNextPressed] = useState(false);
 
-    return (
+    const handlePrev = () => {
+        if(!currentLoc || !prevIdForState){
+            return;
+        }
+        const prevPoint = allLocations.find(n => n.id === prevIdForState);
+        if(!prevPoint){
+            return;
+        }
+        setTargetData((prev) => ({
+            ...prev,
+            location: prevPoint,
+        }));
+    };
+
+    const handleNext = () => {
+        if(!currentLoc || !nextIdForState){
+            return;
+        }
+        const nextPoint = allLocations.find(n => n.id === nextIdForState);
+        if(!nextPoint){
+            return;
+        }
+        setTargetData((prev) => ({
+            ...prev,
+            location: nextPoint,
+        }));
+    };
+
+    return(
         <View style={styles.container}>
             <Text style={styles.goalTitle}>
-                {targetData.location_name}
+                {type && currentLoc?.id != null ? `${type} – ${currentLoc.id}` : targetData.location_name}
             </Text>
+
 
             <View style={styles.row}>
                 <Pressable
-                    onPress={() => setPrevLoc(type, allLocations, currentLoc, setTargetData)}
+                    onPress={handlePrev}
                     onPressIn={() => setPrevPressed(true)}
                     onPressOut={() => setPrevPressed(false)}
                     disabled={!canPrev}
@@ -37,7 +107,7 @@ const NavigationButtons = () => {
                     <Text style={styles.navButtonText}>PREV</Text>
                 </Pressable>
                 <Pressable
-                    onPress={() => setNextLoc(type, allLocations, currentLoc, setTargetData)}
+                    onPress={handleNext}
                     onPressIn={() => setNextPressed(true)}
                     onPressOut={() => setNextPressed(false)}
                     disabled={!canNext}

@@ -6,19 +6,21 @@ import DirectionPointer from "../../components/DirectionPointer";
 import NavigationButtons from "../../components/NavigationButtons";
 import StopButton from "../../components/StopButton";
 import isOnTarget from "../../helpers/isOnTarget";
-import { hasNext, setNextLoc } from "../../helpers/setPrevNextLoc"
 import determineLocDir from "../../helpers/determineLocDir";
+import getNextPoint from "../../helpers/getNextPoint";
 
 const MainTab = () => {
     const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget } = useAppContext();
 
-    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 5);
+    const onTarget = isOnTarget(distanceMeters, coords?.accuracy, 15);
     const type = targetData?.location_name?.split(" – ")?.[0];
     const currentLoc = targetData?.location;
     const allLocations = maps?.[type] || [];
 
+    const prevLocIdRef = React.useRef(null);
+
     React.useEffect(() => {
-        if(!onTarget || !targetData?.location){
+        if(!onTarget || !currentLoc){
             return;
         }
 
@@ -27,32 +29,40 @@ const MainTab = () => {
             return;
         }
 
-        if(hasNext(allLocations, currentLoc)){
-            setNextLoc(type, allLocations, currentLoc, setTargetData);
-            const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
-            if(nextLocDir === "R"){
-                alert("Turn Right!");
-                // send message to esp32
-            }
-            else if(nextLocDir === "L"){
-                alert("Turn Left!");
-                // send message to esp32
-            }
-            else if(nextLocDir === "A"){
-                alert("Move Ahead!")
-            }
-        }
-        else{
+        const nextId = getNextPoint(allLocations, currentLoc.id, prevLocIdRef.current);
+        if(!nextId){
             alert("Reached the end!");
+            return;
+        }
+
+        const nextPoint = allLocations.find((n) => n.id === nextId);
+        if(!nextPoint){
+            console.warn("Next point not found in map");
+            return;
+        }
+
+        prevLocIdRef.current = currentLoc.id;
+
+        setTargetData((prev) => ({
+            ...prev,
+            location: nextPoint,
+        }));
+
+        const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
+        if(nextLocDir === "R"){
+            alert("Turn Right!");
+        }
+        else if(nextLocDir === "L"){
+            alert("Turn Left!");
+        }
+        else if(nextLocDir === "A"){
+            alert("Move Ahead!")
         }
     }, [onTarget]);
 
     return(
         <View style={styles.container}>
-            {/* NAVIGATION OFF */}
             {!targetData.location ? <TargetButtons /> : null}
-
-            {/* NAVIGATION ON */}
             {targetData.location ? <DirectionPointer angle={ Math.round(relativeAngle || 0) } /> : null}
             {targetData.location ? <NavigationButtons /> : null}
             {targetData.location ? <StopButton /> : null}

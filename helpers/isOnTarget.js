@@ -1,4 +1,4 @@
-const isOnTarget = (distanceMeters, accuracy, baseThreshold = 5) => {
+const isOnTarget = (distanceMeters, accuracy, baseThreshold = 15) => {
     if(distanceMeters == null){
         return false;
     }
