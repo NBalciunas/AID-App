@@ -12,15 +12,21 @@ AID App is a guidance app built with React Native that connects over BLE to an E
 - Debug view with distance, accuracy, bearing, and target status
 - Lightweight UI focused on repeatable everyday routes
 
-### Build (without Google Play)
+## Build (without Google Play)
 
 ```bash
 npx eas build -p android --profile preview
 ```
 
+## Extras
+
+Code for the ESP32-powered bracelet(s) and the route generation script is available in the `extras/` folder.
+
 ## Next steps
 
 - Load maps from external files instead of hardcoded JSON
+- Improve off-route detection logic and make reconnection to the route more reliable
+- Improve the Python route graph generation script
 
 ## Licence
 

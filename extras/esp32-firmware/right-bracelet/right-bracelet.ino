@@ -7,14 +7,24 @@
 
 class MyCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pChar) override {
-    std::string rx = std::string(pChar->getValue().c_str());
+    String rx = pChar->getValue();
 
     Serial.print("Raw length: ");
     Serial.println(rx.length());
 
     Serial.print("Received: ");
-    for (char c : rx) Serial.print(c);
-    Serial.println();
+    Serial.println(rx);
+  }
+};
+
+class MyServerCallbacks : public BLEServerCallbacks {
+  void onConnect(BLEServer *pServer) override {
+    Serial.println("Client connected");
+  }
+
+  void onDisconnect(BLEServer *pServer) override {
+    Serial.println("Client disconnected, restarting advertising");
+    BLEDevice::startAdvertising();
   }
 };
 
@@ -22,13 +32,16 @@ void setup() {
   Serial.begin(115200);
 
   BLEDevice::init("ESP32-BLE");
+
   BLEServer *server = BLEDevice::createServer();
+  server->setCallbacks(new MyServerCallbacks());
+
   BLEService *service = server->createService(SERVICE_UUID);
 
   BLECharacteristic *characteristic = service->createCharacteristic(
     CHARACTERISTIC_UUID,
     BLECharacteristic::PROPERTY_WRITE |
-    BLECharacteristic::PROPERTY_READ |
+    BLECharacteristic::PROPERTY_READ  |
     BLECharacteristic::PROPERTY_NOTIFY
   );
 

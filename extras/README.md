@@ -2,7 +2,8 @@
 
 ## ESP32 Firmware
 
-Firmware for the left and right bracelets based on the Adafruit HUZZAH32 (ESP32) board.
+Firmware for the left and right bracelets based on the Adafruit HUZZAH32 (ESP32) board.  
+Each bracelet drives a small vibration motor connected to GPIO X for haptic feedback.
 
 ## Route Gen
 
