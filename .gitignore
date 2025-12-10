@@ -41,3 +41,8 @@ yarn-error.*
 /android
 
 /.idea
+
+# Route generator (Python) stuff
+extras/route-gen/.env
+extras/route-gen/route_web.json
+extras/route-gen/route_web.kml
