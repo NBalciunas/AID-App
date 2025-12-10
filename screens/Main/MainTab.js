@@ -9,6 +9,7 @@ import StopButton from "../../components/StopButton";
 import isOnTarget from "../../helpers/isOnTarget";
 import determineLocDir from "../../helpers/determineLocDir";
 import getNextPoint from "../../helpers/getNextPoint";
+import isOffCourse from "../../helpers/isOffCourse";
 
 const MainTab = () => {
     const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget, proximitySensitivity } = useAppContext();
@@ -20,12 +21,13 @@ const MainTab = () => {
 
     const prevLocIdRef = React.useRef(null);
 
+    // REACHED TARGET -> go to next point
     React.useEffect(() => {
-        if(!onTarget || !currentLoc){
+        if(!onTarget || !currentLoc || !allLocations.length){
             return;
         }
 
-        if(!type || !allLocations.length){
+        if(!type){
             console.warn("Current location not found in maps");
             return;
         }
@@ -57,9 +59,38 @@ const MainTab = () => {
             alert("Turn Left!");
         }
         else if(nextLocDir === "A"){
-            alert("Move Ahead!")
+            alert("Move Ahead!");
         }
     }, [onTarget]);
+
+    // OFF COURSE -> snap to nearest node
+    React.useEffect(() => {
+        if(!currentLoc || !coords || !allLocations.length){
+            return;
+        }
+
+        const { offCourse, snappedNode } = isOffCourse(
+            allLocations,
+            currentLoc.id,
+            coords,
+            heading,
+            proximitySensitivity,
+            prevLocIdRef.current
+        );
+
+        if(!offCourse || !snappedNode || snappedNode.id === currentLoc.id){
+            return;
+        }
+
+        prevLocIdRef.current = currentLoc.id;
+
+        setTargetData((prev) => ({
+            ...prev,
+            location: snappedNode,
+        }));
+
+        alert("You left the planned path. Snapping to nearest point.");
+    }, [coords, heading, currentLoc, allLocations, proximitySensitivity]);
 
     return(
         <View style={styles.container}>

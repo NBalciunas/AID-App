@@ -59,13 +59,14 @@ export const AppProvider = ({ children }) => {
             const d = await connectBLE({
                 manager: bleManager,
                 onLog: addBleLog,
-                deviceNameFilter: "ESP32",
+                deviceNameFilter: "ESP32-BLE",
             });
             setBleDevice(d);
             setBleConnected(true);
         }
         catch(e){
             addBleLog(`Connection error: ${e.message}`);
+            setBleDevice(null);
             setBleConnected(false);
         }
     };

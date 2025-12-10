@@ -21,7 +21,7 @@ const angleDiff = (a, b) => {
     return Math.abs(d);
 };
 
-const isOffCourse = (nodes, expectedId, coords, headingDeg, thresholdMeters = 20) => {
+const isOffCourse = (nodes, expectedId, coords, headingDeg, thresholdMeters = 15, lastVisitedId = null) => {
     if(!nodes?.length || !coords || expectedId == null){
         return { offCourse: false, snappedNode: null };
     }
@@ -43,6 +43,10 @@ const isOffCourse = (nodes, expectedId, coords, headingDeg, thresholdMeters = 20
     let bestDist = Infinity;
 
     for(const n of nodes){
+        if(n.id === expectedId || (lastVisitedId != null && n.id === lastVisitedId)){
+            continue;
+        }
+
         const d = haversine(latitude, longitude, n.lat, n.lon);
 
         if(headingDeg != null){
