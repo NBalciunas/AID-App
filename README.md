@@ -1,7 +1,7 @@
 # AID App
 *(AI + Dementia) App*
 
-AIDemApp is a guidance app built with React Native that connects over BLE to an ESP32-based bracelet(s) and guides the user along predefined routes using live GPS position and device heading.
+AID App is a guidance app built with React Native that connects over BLE to an ESP32-based bracelet(s) and guides the user along predefined routes using live GPS position and device heading.
 
 This project was developed during my Erasmus semester in the All-round Designer programme, as part of the Project Engineering course at Windesheim University of Applied Sciences.
 
