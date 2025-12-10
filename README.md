@@ -14,7 +14,9 @@ AID App is a guidance app built with React Native that connects over BLE to an E
 
 ### Build (without Google Play)
 
-`npx eas build -p android --profile preview`
+```bash
+npx eas build -p android --profile preview
+```
 
 ## Next steps
 

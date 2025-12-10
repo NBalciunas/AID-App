@@ -47,6 +47,9 @@ export const AppProvider = ({ children }) => {
     const [bleConnected, setBleConnected] = useState(false);
     const [bleLogs, setBleLogs] = useState([]);
 
+    const disconnectSubRef = useRef(null);
+    const wantBleConnectionRef = useRef(false);
+
     const addBleLog = (msg) => {
         setBleLogs((prev) => [
             ...prev,
@@ -55,19 +58,45 @@ export const AppProvider = ({ children }) => {
     };
 
     const connectESP32 = async () => {
+        wantBleConnectionRef.current = true;
+        addBleLog("Starting ESP32 scan…");
+
         try{
             const d = await connectBLE({
                 manager: bleManager,
                 onLog: addBleLog,
                 deviceNameFilter: "ESP32-BLE",
             });
+
             setBleDevice(d);
             setBleConnected(true);
+            addBleLog(`Connected to ${d.name || "Unknown"}`);
+
+            disconnectSubRef.current?.remove?.();
+
+            disconnectSubRef.current = bleManager.onDeviceDisconnected(d.id, () => {
+                addBleLog("ESP32 disconnected");
+                setBleConnected(false);
+                setBleDevice(null);
+
+                if(!wantBleConnectionRef.current){
+                    addBleLog("Auto-reconnect disabled, not reconnecting.");
+                    return;
+                }
+
+                addBleLog("Attempting auto-reconnect in 2s…");
+                setTimeout(() => {
+                    if(!wantBleConnectionRef.current){
+                        return;
+                    }
+                    connectESP32();
+                }, 2000);
+            });
         }
         catch(e){
             addBleLog(`Connection error: ${e.message}`);
-            setBleDevice(null);
             setBleConnected(false);
+            setBleDevice(null);
         }
     };
 
@@ -154,6 +183,8 @@ export const AppProvider = ({ children }) => {
             headSubRef.current?.remove?.();
             posSubRef.current = null;
             headSubRef.current = null;
+            disconnectSubRef.current?.remove?.();
+            disconnectSubRef.current = null;
         };
     }, []);
 
