@@ -3,22 +3,39 @@ import { View, Text, ScrollView, StyleSheet, TextInput, Pressable } from "react-
 import { useAppContext } from "../../../../AppContext";
 
 const BluetoothDashboard = () => {
-    const { bleConnected, bleDevice, bleLogs, connectESP32, sendBleMessage } = useAppContext();
-    const [message, setMessage] = useState("");
+    const { bleLogs, leftBleDevice, rightBleDevice, leftBleConnected, rightBleConnected, connectLeftESP32, connectRightESP32, sendLeftBleMessage, sendRightBleMessage } = useAppContext();
 
-    const handleConnectPress = () => {
-        if(!bleConnected){
-            connectESP32();
+    const [leftMessage, setLeftMessage] = useState("");
+    const [rightMessage, setRightMessage] = useState("");
+
+    const handleConnectLeftPress = () => {
+        if(!leftBleConnected){
+            connectLeftESP32();
         }
     };
 
-    const handleSendPress = async () => {
-        const trimmed = message.trim();
+    const handleConnectRightPress = () => {
+        if(!rightBleConnected){
+            connectRightESP32();
+        }
+    };
+
+    const handleSendLeftPress = async () => {
+        const trimmed = leftMessage.trim();
         if(!trimmed){
             return;
         }
-        await sendBleMessage(trimmed);
-        setMessage("");
+        await sendLeftBleMessage(trimmed);
+        setLeftMessage("");
+    };
+
+    const handleSendRightPress = async () => {
+        const trimmed = rightMessage.trim();
+        if(!trimmed){
+            return;
+        }
+        await sendRightBleMessage(trimmed);
+        setRightMessage("");
     };
 
     return(
@@ -29,25 +46,48 @@ const BluetoothDashboard = () => {
                 <Text style={styles.blockTitle}>CONNECT</Text>
 
                 <Pressable
-                    onPress={handleConnectPress}
+                    onPress={handleConnectLeftPress}
                     style={[
                         styles.connectBtn,
-                        bleConnected && styles.connectBtnActive,
+                        leftBleConnected && styles.connectBtnActive,
                     ]}
                 >
                     <Text
                         style={[
                             styles.connectBtnText,
-                            bleConnected && styles.connectBtnTextActive,
+                            leftBleConnected && styles.connectBtnTextActive,
                         ]}
                     >
-                        {bleConnected ? "CONNECTED" : "CONNECT BT"}
+                        {leftBleConnected ? "LEFT CONNECTED" : "CONNECT LEFT"}
                     </Text>
                 </Pressable>
 
-                {bleConnected && (
+                {leftBleConnected && (
                     <Text style={styles.code}>
-                        Connected to: {bleDevice?.name || "Unknown"}
+                        Left: {leftBleDevice?.name || "Unknown"}
+                    </Text>
+                )}
+
+                <Pressable
+                    onPress={handleConnectRightPress}
+                    style={[
+                        styles.connectBtn,
+                        rightBleConnected && styles.connectBtnActive,
+                    ]}
+                >
+                    <Text
+                        style={[
+                            styles.connectBtnText,
+                            rightBleConnected && styles.connectBtnTextActive,
+                        ]}
+                    >
+                        {rightBleConnected ? "RIGHT CONNECTED" : "CONNECT RIGHT"}
+                    </Text>
+                </Pressable>
+
+                {rightBleConnected && (
+                    <Text style={styles.code}>
+                        Right: {rightBleDevice?.name || "Unknown"}
                     </Text>
                 )}
             </View>
@@ -55,20 +95,38 @@ const BluetoothDashboard = () => {
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>SEND MESSAGE</Text>
 
-                {!bleConnected ? (
-                    <Text style={styles.code}>[BT NOT CONNECTED]</Text>
+                {!leftBleConnected ? (
+                    <Text style={styles.code}>[LEFT NOT CONNECTED]</Text>
                 ) : (
                     <View style={styles.sendRow}>
                         <TextInput
-                            value={message}
-                            onChangeText={setMessage}
-                            placeholder="Type message..."
+                            value={leftMessage}
+                            onChangeText={setLeftMessage}
+                            placeholder="Type message to LEFT..."
                             style={styles.input}
                             placeholderTextColor="#555"
                         />
 
-                        <Pressable style={styles.sendBtn} onPress={handleSendPress}>
-                            <Text style={styles.sendBtnText}>SEND</Text>
+                        <Pressable style={styles.sendBtn} onPress={handleSendLeftPress}>
+                            <Text style={styles.sendBtnText}>SEND LEFT</Text>
+                        </Pressable>
+                    </View>
+                )}
+
+                {!rightBleConnected ? (
+                    <Text style={styles.code}>[RIGHT NOT CONNECTED]</Text>
+                ) : (
+                    <View style={styles.sendRow}>
+                        <TextInput
+                            value={rightMessage}
+                            onChangeText={setRightMessage}
+                            placeholder="Type message to RIGHT..."
+                            style={styles.input}
+                            placeholderTextColor="#555"
+                        />
+
+                        <Pressable style={styles.sendBtn} onPress={handleSendRightPress}>
+                            <Text style={styles.sendBtnText}>SEND RIGHT</Text>
                         </Pressable>
                     </View>
                 )}

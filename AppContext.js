@@ -27,6 +27,9 @@ const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
 const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
 const bleManager = new BleManager();
 
+const LEFT_DEVICE_NAME = "ESP32-LEFT";
+const RIGHT_DEVICE_NAME = "ESP32-RIGHT";
+
 export const AppProvider = ({ children }) => {
     const [maps, setMaps] = useState({});
     const [targetData, setTargetData] = useState({
@@ -43,12 +46,16 @@ export const AppProvider = ({ children }) => {
 
     const [proximitySensitivity, setProximitySensitivity] = useState(15);
 
-    const [bleDevice, setBleDevice] = useState(null);
-    const [bleConnected, setBleConnected] = useState(false);
+    const [leftBleDevice, setLeftBleDevice] = useState(null);
+    const [rightBleDevice, setRightBleDevice] = useState(null);
+    const [leftBleConnected, setLeftBleConnected] = useState(false);
+    const [rightBleConnected, setRightBleConnected] = useState(false);
     const [bleLogs, setBleLogs] = useState([]);
 
-    const disconnectSubRef = useRef(null);
-    const wantBleConnectionRef = useRef(false);
+    const leftDisconnectSubRef = useRef(null);
+    const rightDisconnectSubRef = useRef(null);
+    const leftWantBleConnectionRef = useRef(false);
+    const rightWantBleConnectionRef = useRef(false);
 
     const addBleLog = (msg) => {
         setBleLogs((prev) => [
@@ -57,62 +64,125 @@ export const AppProvider = ({ children }) => {
         ]);
     };
 
-    const connectESP32 = async () => {
-        wantBleConnectionRef.current = true;
-        addBleLog("Starting ESP32 scan…");
+    const connectLeftESP32 = async () => {
+        leftWantBleConnectionRef.current = true;
+        addBleLog("LEFT: Starting ESP32 scan…");
 
         try{
             const d = await connectBLE({
                 manager: bleManager,
-                onLog: addBleLog,
-                deviceNameFilter: "ESP32-BLE",
+                onLog: (m) => addBleLog(`LEFT: ${m}`),
+                deviceNameFilter: LEFT_DEVICE_NAME,
             });
 
-            setBleDevice(d);
-            setBleConnected(true);
-            addBleLog(`Connected to ${d.name || "Unknown"}`);
+            setLeftBleDevice(d);
+            setLeftBleConnected(true);
+            addBleLog(`LEFT: Connected to ${d.name || "Unknown"}`);
 
-            disconnectSubRef.current?.remove?.();
+            leftDisconnectSubRef.current?.remove?.();
 
-            disconnectSubRef.current = bleManager.onDeviceDisconnected(d.id, () => {
-                addBleLog("ESP32 disconnected");
-                setBleConnected(false);
-                setBleDevice(null);
+            leftDisconnectSubRef.current = bleManager.onDeviceDisconnected(d.id, () => {
+                addBleLog("LEFT: ESP32 disconnected");
+                setLeftBleConnected(false);
+                setLeftBleDevice(null);
 
-                if(!wantBleConnectionRef.current){
-                    addBleLog("Auto-reconnect disabled, not reconnecting.");
+                if(!leftWantBleConnectionRef.current){
+                    addBleLog("LEFT: Auto-reconnect disabled, not reconnecting.");
                     return;
                 }
 
-                addBleLog("Attempting auto-reconnect in 2s…");
+                addBleLog("LEFT: Attempting auto-reconnect in 2s…");
                 setTimeout(() => {
-                    if(!wantBleConnectionRef.current){
+                    if(!leftWantBleConnectionRef.current){
                         return;
                     }
-                    connectESP32();
+                    connectLeftESP32();
                 }, 2000);
             });
         }
         catch(e){
-            addBleLog(`Connection error: ${e.message}`);
-            setBleConnected(false);
-            setBleDevice(null);
+            addBleLog(`LEFT: Connection error: ${e.message}`);
+            setLeftBleConnected(false);
+            setLeftBleDevice(null);
         }
     };
 
-    const sendBleMessage = async (message) => {
-        if(!bleDevice){
-            addBleLog("No BLE device connected");
+    const connectRightESP32 = async () => {
+        rightWantBleConnectionRef.current = true;
+        addBleLog("RIGHT: Starting ESP32 scan…");
+
+        try{
+            const d = await connectBLE({
+                manager: bleManager,
+                onLog: (m) => addBleLog(`RIGHT: ${m}`),
+                deviceNameFilter: RIGHT_DEVICE_NAME,
+            });
+
+            setRightBleDevice(d);
+            setRightBleConnected(true);
+            addBleLog(`RIGHT: Connected to ${d.name || "Unknown"}`);
+
+            rightDisconnectSubRef.current?.remove?.();
+
+            rightDisconnectSubRef.current = bleManager.onDeviceDisconnected(d.id, () => {
+                addBleLog("RIGHT: ESP32 disconnected");
+                setRightBleConnected(false);
+                setRightBleDevice(null);
+
+                if(!rightWantBleConnectionRef.current){
+                    addBleLog("RIGHT: Auto-reconnect disabled, not reconnecting.");
+                    return;
+                }
+
+                addBleLog("RIGHT: Attempting auto-reconnect in 2s…");
+                setTimeout(() => {
+                    if(!rightWantBleConnectionRef.current){
+                        return;
+                    }
+                    connectRightESP32();
+                }, 2000);
+            });
+        }
+        catch(e){
+            addBleLog(`RIGHT: Connection error: ${e.message}`);
+            setRightBleConnected(false);
+            setRightBleDevice(null);
+        }
+    };
+
+    const sendLeftBleMessage = async (message) => {
+        if(!leftBleDevice){
+            addBleLog("LEFT: No BLE device connected");
             return;
         }
 
         try{
             await sendMessageBLE({
-                device: bleDevice,
+                device: leftBleDevice,
                 message,
                 serviceUUID: SERVICE_UUID,
                 characteristicUUID: CHARACTERISTIC_UUID,
-                onLog: addBleLog,
+                onLog: (m) => addBleLog(`LEFT: ${m}`),
+            });
+        }
+        catch(e){
+            // already logged in helper
+        }
+    };
+
+    const sendRightBleMessage = async (message) => {
+        if(!rightBleDevice){
+            addBleLog("RIGHT: No BLE device connected");
+            return;
+        }
+
+        try{
+            await sendMessageBLE({
+                device: rightBleDevice,
+                message,
+                serviceUUID: SERVICE_UUID,
+                characteristicUUID: CHARACTERISTIC_UUID,
+                onLog: (m) => addBleLog(`RIGHT: ${m}`),
             });
         }
         catch(e){
@@ -183,8 +253,11 @@ export const AppProvider = ({ children }) => {
             headSubRef.current?.remove?.();
             posSubRef.current = null;
             headSubRef.current = null;
-            disconnectSubRef.current?.remove?.();
-            disconnectSubRef.current = null;
+            leftDisconnectSubRef.current?.remove?.();
+            rightDisconnectSubRef.current?.remove?.();
+            leftDisconnectSubRef.current = null;
+            rightDisconnectSubRef.current = null;
+
         };
     }, []);
 
@@ -256,12 +329,17 @@ export const AppProvider = ({ children }) => {
                 setProximitySensitivity,
 
                 // BLE
-                bleDevice,
-                bleConnected,
                 bleLogs,
                 addBleLog,
-                connectESP32,
-                sendBleMessage,
+                leftBleDevice,
+                leftBleConnected,
+                rightBleDevice,
+                rightBleConnected,
+                connectLeftESP32,
+                connectRightESP32,
+                sendLeftBleMessage,
+                sendRightBleMessage,
+
             }}
         >
             {children}

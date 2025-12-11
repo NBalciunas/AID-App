@@ -20,7 +20,7 @@ class MyCallback : public BLECharacteristicCallbacks {
     Serial.print("Received: ");
     Serial.println(rx);
 
-    if (rx == "R") {
+    if (rx == "L") {
       digitalWrite(VIB_PIN, HIGH);
       ledOffAt = millis() + LED_ON_MS;
     }
@@ -44,7 +44,7 @@ void setup() {
   pinMode(VIB_PIN, OUTPUT);
   digitalWrite(VIB_PIN, LOW);
 
-  BLEDevice::init("ESP32-RIGHT");
+  BLEDevice::init("ESP32-LEFT");
 
   BLEServer *server = BLEDevice::createServer();
   server->setCallbacks(new MyServerCallbacks());
