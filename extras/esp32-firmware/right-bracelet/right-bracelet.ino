@@ -6,9 +6,9 @@
 #define CHARACTERISTIC_UUID "abcdef01-1234-5678-1234-56789abcdef0"
 
 const int VIB_PIN = LED_BUILTIN;
-const unsigned long LED_ON_MS = 1000;
+const unsigned long VIB_ON_MS = 1000;
 
-unsigned long ledOffAt = 0;
+unsigned long vibOffAt = 0;
 
 class MyCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pChar) override {
@@ -22,7 +22,7 @@ class MyCallback : public BLECharacteristicCallbacks {
 
     if (rx == "R") {
       digitalWrite(VIB_PIN, HIGH);
-      ledOffAt = millis() + LED_ON_MS;
+      vibOffAt = millis() + VIB_ON_MS;
     }
   }
 };
@@ -70,9 +70,9 @@ void setup() {
 }
 
 void loop() {
-  if (ledOffAt != 0 && millis() >= ledOffAt) {
+  if (vibOffAt != 0 && millis() >= vibOffAt) {
     digitalWrite(VIB_PIN, LOW);
-    ledOffAt = 0;
+    vibOffAt = 0;
   }
 
   delay(500);
