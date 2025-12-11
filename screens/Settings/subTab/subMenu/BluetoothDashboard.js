@@ -252,14 +252,6 @@ const styles = StyleSheet.create({
         borderRadius: 0,
         backgroundColor: "transparent",
     },
-    sendBoxTitle: {
-        fontSize: 14,
-        fontWeight: "700",
-        marginBottom: 6,
-        textTransform: "uppercase",
-        fontFamily: "Poppins-Bold",
-        color: "#000",
-    },
     sendRow: {
         flexDirection: "column",
         gap: 10,
