@@ -63,10 +63,11 @@ const BluetoothDashboard = () => {
 
                 <Pressable
                     onPress={handleConnectLeftPress}
-                    style={[
+                    style={({ pressed }) => [
                         styles.connectBtn,
                         leftBleConnected && styles.connectBtnActive,
                         leftConnecting && styles.connectBtnConnecting,
+                        pressed && styles.buttonPressed,
                     ]}
                 >
                     <Text
@@ -82,10 +83,11 @@ const BluetoothDashboard = () => {
 
                 <Pressable
                     onPress={handleConnectRightPress}
-                    style={[
+                    style={({ pressed }) => [
                         styles.connectBtn,
                         rightBleConnected && styles.connectBtnActive,
                         rightConnecting && styles.connectBtnConnecting,
+                        pressed && styles.buttonPressed,
                     ]}
                 >
                     <Text
@@ -116,7 +118,13 @@ const BluetoothDashboard = () => {
                                 style={styles.input}
                                 placeholderTextColor="#555"
                             />
-                            <Pressable style={styles.sendBtn} onPress={handleSendLeftPress}>
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.sendBtn,
+                                    pressed && styles.buttonPressed,
+                                ]}
+                                onPress={handleSendLeftPress}
+                            >
                                 <Text style={styles.sendBtnText}>SEND LEFT</Text>
                             </Pressable>
                         </View>
@@ -136,7 +144,13 @@ const BluetoothDashboard = () => {
                                 style={styles.input}
                                 placeholderTextColor="#555"
                             />
-                            <Pressable style={styles.sendBtn} onPress={handleSendRightPress}>
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.sendBtn,
+                                    pressed && styles.buttonPressed,
+                                ]}
+                                onPress={handleSendRightPress}
+                            >
                                 <Text style={styles.sendBtnText}>SEND RIGHT</Text>
                             </Pressable>
                         </View>
@@ -274,6 +288,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "700",
         fontFamily: "Poppins-Bold",
+    },
+    buttonPressed: {
+        backgroundColor: "#e0e0e0",
     },
     logArea: {
         marginTop: 8,
