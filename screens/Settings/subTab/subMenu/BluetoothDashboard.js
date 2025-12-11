@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TextInput, Pressable } from "react-
 import { useAppContext } from "../../../../AppContext";
 
 const BluetoothDashboard = () => {
-    const { bleLogs, leftBleDevice, rightBleDevice, leftBleConnected, rightBleConnected, connectLeftESP32, connectRightESP32, sendLeftBleMessage, sendRightBleMessage } = useAppContext();
+    const { bleLogs, leftBleConnected, rightBleConnected, connectLeftESP32, connectRightESP32, sendLeftBleMessage, sendRightBleMessage } = useAppContext();
 
     const [leftMessage, setLeftMessage] = useState("");
     const [rightMessage, setRightMessage] = useState("");
