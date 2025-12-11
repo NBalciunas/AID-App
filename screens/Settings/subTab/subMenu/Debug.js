@@ -84,7 +84,7 @@ const Debug = () => {
 
             {/* ---------------------- COMPASS ---------------------- */}
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>HEADING</Text>
+                <Text style={styles.blockTitle}>COMPASS</Text>
                 <Text style={styles.code}>
                     Heading: {heading != null ? `${heading.toFixed(1)}°` : "[NO INFO]"}{"\n"}
                     Label: {headingLabel || "[NO INFO]"}

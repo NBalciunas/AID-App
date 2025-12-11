@@ -7,16 +7,32 @@ const BluetoothDashboard = () => {
 
     const [leftMessage, setLeftMessage] = useState("");
     const [rightMessage, setRightMessage] = useState("");
+    const [leftConnecting, setLeftConnecting] = useState(false);
+    const [rightConnecting, setRightConnecting] = useState(false);
 
-    const handleConnectLeftPress = () => {
-        if(!leftBleConnected){
-            connectLeftESP32();
+    const handleConnectLeftPress = async () => {
+        if(leftBleConnected || leftConnecting){
+            return;
+        }
+        try {
+            setLeftConnecting(true);
+            await connectLeftESP32();
+        }
+        finally{
+            setLeftConnecting(false);
         }
     };
 
-    const handleConnectRightPress = () => {
-        if(!rightBleConnected){
-            connectRightESP32();
+    const handleConnectRightPress = async () => {
+        if(rightBleConnected || rightConnecting){
+            return;
+        }
+        try{
+            setRightConnecting(true);
+            await connectRightESP32();
+        }
+        finally{
+            setRightConnecting(false);
         }
     };
 
@@ -38,7 +54,7 @@ const BluetoothDashboard = () => {
         setRightMessage("");
     };
 
-    return(
+    return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>BLUETOOTH DASHBOARD</Text>
 
@@ -50,86 +66,82 @@ const BluetoothDashboard = () => {
                     style={[
                         styles.connectBtn,
                         leftBleConnected && styles.connectBtnActive,
+                        leftConnecting && styles.connectBtnConnecting,
                     ]}
                 >
                     <Text
                         style={[
                             styles.connectBtnText,
                             leftBleConnected && styles.connectBtnTextActive,
+                            leftConnecting && styles.connectBtnTextConnecting,
                         ]}
                     >
-                        {leftBleConnected ? "LEFT CONNECTED" : "CONNECT LEFT"}
+                        {leftConnecting ? "CONNECTING..." : leftBleConnected ? "LEFT CONNECTED" : "CONNECT LEFT"}
                     </Text>
                 </Pressable>
-
-                {leftBleConnected && (
-                    <Text style={styles.code}>
-                        Left: {leftBleDevice?.name || "Unknown"}
-                    </Text>
-                )}
 
                 <Pressable
                     onPress={handleConnectRightPress}
                     style={[
                         styles.connectBtn,
                         rightBleConnected && styles.connectBtnActive,
+                        rightConnecting && styles.connectBtnConnecting,
                     ]}
                 >
                     <Text
                         style={[
                             styles.connectBtnText,
                             rightBleConnected && styles.connectBtnTextActive,
+                            rightConnecting && styles.connectBtnTextConnecting,
                         ]}
                     >
-                        {rightBleConnected ? "RIGHT CONNECTED" : "CONNECT RIGHT"}
+                        {rightConnecting ? "CONNECTING..." : rightBleConnected ? "RIGHT CONNECTED" : "CONNECT RIGHT"}
                     </Text>
                 </Pressable>
-
-                {rightBleConnected && (
-                    <Text style={styles.code}>
-                        Right: {rightBleDevice?.name || "Unknown"}
-                    </Text>
-                )}
             </View>
 
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>SEND MESSAGE</Text>
 
-                {!leftBleConnected ? (
-                    <Text style={styles.code}>[LEFT NOT CONNECTED]</Text>
-                ) : (
-                    <View style={styles.sendRow}>
-                        <TextInput
-                            value={leftMessage}
-                            onChangeText={setLeftMessage}
-                            placeholder="Type message to LEFT..."
-                            style={styles.input}
-                            placeholderTextColor="#555"
-                        />
+                <View style={styles.sendBox}>
+                    <Text style={styles.sendBoxTitle}>LEFT</Text>
+                    {!leftBleConnected ? (
+                        <Text style={styles.code}>[NOT CONNECTED]</Text>
+                    ) : (
+                        <View style={styles.sendRow}>
+                            <TextInput
+                                value={leftMessage}
+                                onChangeText={setLeftMessage}
+                                placeholder="Type message to LEFT..."
+                                style={styles.input}
+                                placeholderTextColor="#555"
+                            />
+                            <Pressable style={styles.sendBtn} onPress={handleSendLeftPress}>
+                                <Text style={styles.sendBtnText}>SEND LEFT</Text>
+                            </Pressable>
+                        </View>
+                    )}
+                </View>
 
-                        <Pressable style={styles.sendBtn} onPress={handleSendLeftPress}>
-                            <Text style={styles.sendBtnText}>SEND LEFT</Text>
-                        </Pressable>
-                    </View>
-                )}
-
-                {!rightBleConnected ? (
-                    <Text style={styles.code}>[RIGHT NOT CONNECTED]</Text>
-                ) : (
-                    <View style={styles.sendRow}>
-                        <TextInput
-                            value={rightMessage}
-                            onChangeText={setRightMessage}
-                            placeholder="Type message to RIGHT..."
-                            style={styles.input}
-                            placeholderTextColor="#555"
-                        />
-
-                        <Pressable style={styles.sendBtn} onPress={handleSendRightPress}>
-                            <Text style={styles.sendBtnText}>SEND RIGHT</Text>
-                        </Pressable>
-                    </View>
-                )}
+                <View style={styles.sendBox}>
+                    <Text style={styles.sendBoxTitle}>RIGHT</Text>
+                    {!rightBleConnected ? (
+                        <Text style={styles.code}>[NOT CONNECTED]</Text>
+                    ) : (
+                        <View style={styles.sendRow}>
+                            <TextInput
+                                value={rightMessage}
+                                onChangeText={setRightMessage}
+                                placeholder="Type message to RIGHT..."
+                                style={styles.input}
+                                placeholderTextColor="#555"
+                            />
+                            <Pressable style={styles.sendBtn} onPress={handleSendRightPress}>
+                                <Text style={styles.sendBtnText}>SEND RIGHT</Text>
+                            </Pressable>
+                        </View>
+                    )}
+                </View>
             </View>
 
             <View style={styles.block}>
@@ -194,7 +206,12 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     connectBtnActive: {
-        backgroundColor: "#fff",
+        backgroundColor: "#d4f8d4",
+        borderColor: "#2b8a3e",
+    },
+    connectBtnConnecting: {
+        backgroundColor: "#fff4cc",
+        borderColor: "#f59f00",
     },
     connectBtnText: {
         fontSize: 16,
@@ -204,13 +221,32 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
     },
     connectBtnTextActive: {
+        color: "#2b8a3e",
+    },
+    connectBtnTextConnecting: {
+        color: "#f59f00",
+    },
+    sendBox: {
+        marginTop: 4,
+        marginBottom: 10,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: "#000",
+        borderRadius: 10,
+        backgroundColor: "#fff",
+    },
+    sendBoxTitle: {
+        fontSize: 14,
+        fontWeight: "700",
+        marginBottom: 6,
+        textTransform: "uppercase",
+        fontFamily: "Poppins-Bold",
         color: "#000",
     },
     sendRow: {
-        flexDirection: "row",
+        flexDirection: "column",
         gap: 10,
         marginTop: 4,
-        alignItems: "center",
     },
     input: {
         flex: 1,
@@ -230,6 +266,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1.5,
         borderColor: "#000",
+        marginTop: 8,
+        alignItems: "center",
     },
     sendBtnText: {
         color: "#000",
