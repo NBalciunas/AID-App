@@ -103,10 +103,9 @@ const BluetoothDashboard = () => {
             </View>
 
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>SEND MESSAGE</Text>
+                <Text style={styles.blockTitle}>SEND MESSAGE (LEFT)</Text>
 
                 <View style={styles.sendBox}>
-                    <Text style={styles.sendBoxTitle}>LEFT</Text>
                     {!leftBleConnected ? (
                         <Text style={styles.code}>[NOT CONNECTED]</Text>
                     ) : (
@@ -114,7 +113,7 @@ const BluetoothDashboard = () => {
                             <TextInput
                                 value={leftMessage}
                                 onChangeText={setLeftMessage}
-                                placeholder="Type message to LEFT..."
+                                placeholder="Type message..."
                                 style={styles.input}
                                 placeholderTextColor="#555"
                             />
@@ -130,9 +129,12 @@ const BluetoothDashboard = () => {
                         </View>
                     )}
                 </View>
+            </View>
+
+            <View style={styles.block}>
+                <Text style={styles.blockTitle}>SEND MESSAGE (RIGHT)</Text>
 
                 <View style={styles.sendBox}>
-                    <Text style={styles.sendBoxTitle}>RIGHT</Text>
                     {!rightBleConnected ? (
                         <Text style={styles.code}>[NOT CONNECTED]</Text>
                     ) : (
@@ -140,7 +142,7 @@ const BluetoothDashboard = () => {
                             <TextInput
                                 value={rightMessage}
                                 onChangeText={setRightMessage}
-                                placeholder="Type message to RIGHT..."
+                                placeholder="Type message..."
                                 style={styles.input}
                                 placeholderTextColor="#555"
                             />
@@ -243,11 +245,12 @@ const styles = StyleSheet.create({
     sendBox: {
         marginTop: 4,
         marginBottom: 10,
-        padding: 12,
-        borderWidth: 1,
-        borderColor: "#000",
-        borderRadius: 10,
-        backgroundColor: "#fff",
+        paddingVertical: 4,
+        paddingHorizontal: 0,
+        borderWidth: 0,
+        borderColor: "transparent",
+        borderRadius: 0,
+        backgroundColor: "transparent",
     },
     sendBoxTitle: {
         fontSize: 14,
