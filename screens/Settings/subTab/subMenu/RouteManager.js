@@ -1,18 +1,10 @@
-// reik styliu perdaryt, reik viska pagrazint
 import React, { useMemo, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert, TextInput } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 
 const RouteManager = () => {
-    const {
-        maps,
-        addMapFromPhone,
-        removeCustomMap,
-        reloadMaps,
-        clearCustomMaps,
-        resetMapsToDefaults,
-        pruneDefaults,
-    } = useAppContext();
+    const { maps, addMapFromPhone, removeCustomMap, reloadMaps, clearCustomMaps, resetMapsToDefaults, pruneDefaults } = useAppContext();
 
     const [query, setQuery] = useState("");
 
@@ -132,8 +124,10 @@ const RouteManager = () => {
         }
     };
 
+    const totalRoutes = Object.keys(maps || {}).length;
+
     return(
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>ROUTE MANAGER</Text>
 
             <View style={styles.block}>
@@ -160,14 +154,14 @@ const RouteManager = () => {
                         onPress={handleClearCustom}
                         style={({ pressed }) => [styles.btnAlt, pressed && styles.btnPressed]}
                     >
-                        <Text style={styles.btnText}>CLEAR CUSTOM</Text>
+                        <Text style={styles.btnAltText}>CLEAR CUSTOM</Text>
                     </Pressable>
 
                     <Pressable
                         onPress={handleReset}
                         style={({ pressed }) => [styles.btnAlt, pressed && styles.btnPressed]}
                     >
-                        <Text style={styles.btnText}>RESET DEFAULTS</Text>
+                        <Text style={styles.btnAltText}>RESET DEFAULTS</Text>
                     </Pressable>
                 </View>
 
@@ -175,23 +169,24 @@ const RouteManager = () => {
                     onPress={handlePrune}
                     style={({ pressed }) => [styles.btnAltFull, pressed && styles.btnPressed]}
                 >
-                    <Text style={styles.btnText}>PRUNE OLD DEFAULTS</Text>
+                    <Text style={styles.btnAltText}>PRUNE OLD DEFAULTS</Text>
                 </Pressable>
             </View>
 
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>ROUTES ({Object.keys(maps || {}).length})</Text>
+                <Text style={styles.blockTitle}>ROUTES</Text>
+                <Text style={styles.subheader}>TOTAL: {totalRoutes}</Text>
 
                 <TextInput
                     value={query}
                     onChangeText={setQuery}
                     placeholder="Search route..."
-                    placeholderTextColor="#666"
+                    placeholderTextColor="#777"
                     style={styles.input}
                 />
 
                 {routeNames.length === 0 ? (
-                    <Text style={styles.empty}>No routes found.</Text>
+                    <Text style={styles.code}>No routes found.</Text>
                 ) : (
                     routeNames.map((name) => (
                         <View key={name} style={styles.routeRow}>
@@ -210,6 +205,8 @@ const RouteManager = () => {
                     ))
                 )}
             </View>
+
+            <StatusBar style="auto" />
         </ScrollView>
     );
 };
@@ -217,33 +214,45 @@ const RouteManager = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000",
-    },
-    content: {
-        padding: 14,
-        paddingBottom: 40,
+        paddingTop: 40,
+        paddingHorizontal: 24,
+        backgroundColor: "#ffffff",
     },
     title: {
-        color: "#fff",
-        fontSize: 20,
-        fontWeight: "800",
-        letterSpacing: 2,
+        fontSize: 22,
+        fontWeight: "700",
         marginBottom: 12,
+        fontFamily: "Poppins-Bold",
+        color: "#000000",
     },
     block: {
-        backgroundColor: "#0b0b0b",
-        borderWidth: 1,
-        borderColor: "#222",
+        marginBottom: 24,
+        padding: 16,
+        borderWidth: 1.5,
+        borderColor: "#000000",
         borderRadius: 12,
-        padding: 12,
-        marginBottom: 12,
+        backgroundColor: "#fafafa",
     },
     blockTitle: {
-        color: "#bbb",
-        fontSize: 12,
-        fontWeight: "800",
-        letterSpacing: 2,
+        fontSize: 16,
+        fontWeight: "700",
         marginBottom: 10,
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+        fontFamily: "Poppins-Bold",
+        color: "#000000",
+    },
+    subheader: {
+        fontSize: 14,
+        marginBottom: 10,
+        fontFamily: "monospace",
+        color: "#000000",
+    },
+    code: {
+        fontSize: 14,
+        fontFamily: "monospace",
+        lineHeight: 20,
+        color: "#000000",
     },
     row: {
         flexDirection: "row",
@@ -254,53 +263,67 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 12,
         borderRadius: 10,
-        backgroundColor: "#111",
-        borderWidth: 1,
-        borderColor: "#333",
+        backgroundColor: "#ffffff",
+        borderWidth: 1.5,
+        borderColor: "#000000",
         alignItems: "center",
+        justifyContent: "center",
     },
     btnAlt: {
         flex: 1,
         paddingVertical: 12,
         borderRadius: 10,
-        backgroundColor: "#090909",
-        borderWidth: 1,
-        borderColor: "#333",
+        backgroundColor: "#fafafa",
+        borderWidth: 1.5,
+        borderColor: "#000000",
         alignItems: "center",
+        justifyContent: "center",
     },
     btnAltFull: {
         paddingVertical: 12,
         borderRadius: 10,
-        backgroundColor: "#090909",
-        borderWidth: 1,
-        borderColor: "#333",
+        backgroundColor: "#fafafa",
+        borderWidth: 1.5,
+        borderColor: "#000000",
         alignItems: "center",
+        justifyContent: "center",
     },
     btnPressed: {
-        opacity: 0.7,
+        backgroundColor: "#eaeaea",
     },
     btnText: {
-        color: "#fff",
-        fontWeight: "800",
-        letterSpacing: 1,
+        color: "#000000",
+        fontWeight: "700",
+        letterSpacing: 0.5,
+        fontFamily: "Poppins-Bold",
         fontSize: 12,
+        textTransform: "uppercase",
+    },
+    btnAltText: {
+        color: "#000000",
+        fontWeight: "700",
+        letterSpacing: 0.5,
+        fontFamily: "Poppins-Bold",
+        fontSize: 12,
+        textTransform: "uppercase",
     },
     input: {
-        borderWidth: 1,
-        borderColor: "#333",
+        borderWidth: 1.5,
+        borderColor: "#000000",
         borderRadius: 10,
         paddingHorizontal: 12,
         paddingVertical: 10,
-        color: "#fff",
-        backgroundColor: "#050505",
-        marginBottom: 10,
+        color: "#000000",
+        backgroundColor: "#ffffff",
+        marginBottom: 12,
+        fontFamily: "monospace",
     },
     routeRow: {
         flexDirection: "row",
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#222",
-        backgroundColor: "#050505",
+        borderWidth: 1.5,
+        borderColor: "#000000",
+        backgroundColor: "#ffffff",
         borderRadius: 12,
         padding: 12,
         marginBottom: 10,
@@ -310,33 +333,35 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     routeName: {
-        color: "#fff",
+        color: "#000000",
         fontSize: 14,
-        fontWeight: "800",
-        letterSpacing: 1,
+        fontWeight: "700",
+        letterSpacing: 0.2,
+        fontFamily: "Poppins-Bold",
     },
     routeMeta: {
-        color: "#888",
+        color: "#000000",
         marginTop: 4,
         fontSize: 12,
+        fontFamily: "monospace",
     },
     removeBtn: {
         paddingVertical: 10,
         paddingHorizontal: 12,
         borderRadius: 10,
-        borderWidth: 1,
-        borderColor: "#3a1f1f",
-        backgroundColor: "#120606",
+        borderWidth: 1.5,
+        borderColor: "#000000",
+        backgroundColor: "#fafafa",
+        alignItems: "center",
+        justifyContent: "center",
     },
     removeBtnText: {
-        color: "#ffb3b3",
-        fontWeight: "900",
-        letterSpacing: 1,
+        color: "#000000",
+        fontWeight: "700",
+        letterSpacing: 0.5,
+        fontFamily: "Poppins-Bold",
         fontSize: 12,
-    },
-    empty: {
-        color: "#777",
-        paddingVertical: 10,
+        textTransform: "uppercase",
     },
 });
 
