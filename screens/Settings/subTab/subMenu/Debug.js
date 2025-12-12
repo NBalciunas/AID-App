@@ -135,7 +135,7 @@ const Debug = () => {
                         dropdownIconColor="#000000"
                     >
                         {SENSITIVITY_OPTIONS.map((v) => (
-                            <Picker.Item key={v} label={`${v} m`} value={v} color="#ffffff" />
+                            <Picker.Item key={v} label={`${v} m`} value={v} />
                         ))}
                     </Picker>
                 </View>
@@ -179,7 +179,7 @@ const Debug = () => {
                         dropdownIconColor="#000000"
                     >
                         {types.map((t) => (
-                            <Picker.Item key={t} label={t} value={t} color="#ffffff" />
+                            <Picker.Item key={t} label={t} value={t} />
                         ))}
                     </Picker>
                 </View>
@@ -198,7 +198,6 @@ const Debug = () => {
                                 key={`${type}-${l.id}`}
                                 label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
                                 value={String(l.id)}
-                                color="#ffffff"
                             />
                         ))}
                     </Picker>
