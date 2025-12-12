@@ -21,7 +21,6 @@ const MainTab = () => {
 
     const prevLocIdRef = React.useRef(null);
 
-    // REACHED TARGET -> go to next point
     React.useEffect(() => {
         if(!onTarget || !currentLoc || !allLocations.length){
             return;
