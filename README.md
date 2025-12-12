@@ -33,14 +33,20 @@ cd android
 
 ## Usage
 
-1. Power on both bracelets.
-2. Open the app.
-3. Go to the **Settings** tab.
-4. Open the **Bluetooth Dashboard**.
-5. Tap **CONNECT LEFT** and **CONNECT RIGHT**.
-6. (Optional) Test both bracelets by tapping **VIBRATE** in their respective sections.
-7. Go back to the **Main** tab.
-8. Tap any route from the list to choose it and start guidance.
+1. Open the app.
+2. Go to the **Settings** tab.
+3. Open the **Route Manager**.
+4. Tap **IMPORT JSON**.
+5. Select a JSON route file.
+6. (Optional) Repeat step 4-5 until you have imported all routes.
+7. Go back to the **Settings** tab.
+8. Open the **Bluetooth Dashboard**.
+9. Power on both bracelets.
+10. Tap **CONNECT LEFT** and **CONNECT RIGHT**.
+11. Wait for both bracelets to connect.
+12. (Optional) Test both bracelets by tapping **VIBRATE** in their respective sections.
+13. Go back to the **Main** tab.
+14. Tap any route from the list to select it and start guidance.
 
 ## Preview
 
@@ -53,7 +59,6 @@ Code for the ESP32-powered bracelet(s) and the route generation script is availa
 ## Next steps
 
 - Automate bracelet connection on app launch.
-- Load maps from external files instead of hardcoded JSON.
 - Improve off-route detection logic and make reconnection to the route more reliable.
 - Improve the Python route graph generation script.
 - Add optional ESP32 bracelet screen and speaker support for status and guidance cues.

@@ -13,14 +13,18 @@ const Debug = () => {
     const types = Object.keys(maps || {});
     const [type, setTypeState] = React.useState(types[0] || "");
     const [locId, setLocId] = React.useState("");
-    const locations = maps?.[type] || [];
+    const locations = Array.isArray(maps?.[type]) ? maps[type] : [];
     const hasInfo = heading != null && headingLabel;
     const onTarget = isOnTarget(distanceMeters, coords?.accuracy, proximitySensitivity);
     const SENSITIVITY_OPTIONS = [3, 5, 10, 15, 20, 30, 40, 50];
     const locDir = determineLocDir(heading, bearingToTarget, 5);
 
+    const locationsEmpty = types.length === 0 || Object.entries(maps || {}).length === 0;
+
     React.useEffect(() => {
         if(!types.length){
+            setTypeState("");
+            setLocId("");
             return;
         }
 
@@ -29,7 +33,8 @@ const Debug = () => {
 
         if(targetData?.location){
             for(const t of types){
-                const match = maps[t]?.find(
+                const arr = Array.isArray(maps?.[t]) ? maps[t] : [];
+                const match = arr.find(
                     (l) =>
                         l.lat === targetData.location.lat &&
                         l.lon === targetData.location.lon
@@ -42,24 +47,45 @@ const Debug = () => {
             }
         }
 
-        if(!chosenId){
-            chosenId = String(maps[chosenType][0].id);
+        const firstArr = Array.isArray(maps?.[chosenType]) ? maps[chosenType] : [];
+        if(!chosenId && firstArr.length){
+            chosenId = String(firstArr[0].id);
         }
 
         setTypeState(chosenType);
         setLocId(chosenId);
-        setTarget(maps, chosenType, chosenId, setTargetData);
+
+        if(chosenId){
+            setTarget(maps, chosenType, chosenId, setTargetData);
+        }
     }, [maps]);
 
     const onChangeType = (t) => {
-        const first = maps[t][0];
+        const arr = Array.isArray(maps?.[t]) ? maps[t] : [];
         setTypeState(t);
+
+        if(!arr.length){
+            setLocId("");
+            return;
+        }
+
+        const first = arr[0];
         setLocId(String(first.id));
         setTarget(maps, t, first.id, setTargetData);
     };
 
     const onChangeLocation = (id) => {
         setLocId(String(id));
+
+        if(!type || !id){
+            return;
+        }
+
+        const arr = Array.isArray(maps?.[type]) ? maps[type] : [];
+        if(!arr.length){
+            return;
+        }
+
         setTarget(maps, type, id, setTargetData);
     };
 
@@ -152,56 +178,66 @@ const Debug = () => {
 
             {/* ---------------------- LOCATION LIST ---------------------- */}
             <View style={styles.block}>
-                <Text style={styles.blockTitle}>LOCATIONS</Text>
-                {Object.entries(maps).map(([t, locs]) => (
-                    <View key={t} style={{ marginBottom: 12 }}>
-                        <Text style={styles.subheader}>{t.toUpperCase()}</Text>
-                        {locs.map((l) => (
-                            <Text key={`${t}-${l.id}`} style={styles.code}>
-                                {l.id}: ({l.lat}, {l.lon}) -> {l.connected_to.join(", ")}
-                            </Text>
-                        ))}
-                    </View>
-                ))}
+                <Text style={styles.blockTitle}>LOCATION LIST</Text>
+
+                {locationsEmpty ? (
+                    <Text style={styles.code}>[EMPTY]</Text>
+                ) : (
+                    Object.entries(maps || {}).map(([t, locs]) => (
+                        <View key={t} style={{ marginBottom: 12 }}>
+                            <Text style={styles.subheader}>{t.toUpperCase()}</Text>
+                            {(Array.isArray(locs) ? locs : []).map((l) => (
+                                <Text key={`${t}-${l.id}`} style={styles.code}>
+                                    {l.id}: ({l.lat}, {l.lon}) -> {l.connected_to.join(", ")}
+                                </Text>
+                            ))}
+                        </View>
+                    ))
+                )}
             </View>
 
             {/* ---------------------- SET TARGET ---------------------- */}
             <View style={styles.block}>
                 <Text style={styles.blockTitle}>SET TARGET</Text>
 
-                {/* CATEGORY */}
-                <Text style={styles.subheader}>CATEGORY</Text>
-                <View style={styles.frameBox}>
-                    <Picker
-                        selectedValue={type}
-                        onValueChange={onChangeType}
-                        style={styles.picker}
-                        dropdownIconColor="#000000"
-                    >
-                        {types.map((t) => (
-                            <Picker.Item key={t} label={t} value={t} />
-                        ))}
-                    </Picker>
-                </View>
+                {locationsEmpty ? (
+                    <Text style={styles.code}>[EMPTY]</Text>
+                ) : (
+                    <>
+                        <Text style={styles.subheader}>CATEGORY</Text>
+                        <View style={styles.frameBox}>
+                            <Picker
+                                selectedValue={type}
+                                onValueChange={onChangeType}
+                                style={styles.picker}
+                                dropdownIconColor="#000000"
+                            >
+                                {types.map((t) => (
+                                    <Picker.Item key={t} label={t} value={t} />
+                                ))}
+                            </Picker>
+                        </View>
 
-                {/* ---------------------- LOCATION ---------------------- */}
-                <Text style={styles.subheader}>LOCATION</Text>
-                <View style={styles.frameBox}>
-                    <Picker
-                        selectedValue={locId}
-                        onValueChange={onChangeLocation}
-                        style={styles.picker}
-                        dropdownIconColor="#000000"
-                    >
-                        {locations.map((l) => (
-                            <Picker.Item
-                                key={`${type}-${l.id}`}
-                                label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
-                                value={String(l.id)}
-                            />
-                        ))}
-                    </Picker>
-                </View>
+                        <Text style={styles.subheader}>LOCATION</Text>
+                        <View style={styles.frameBox}>
+                            <Picker
+                                selectedValue={locId}
+                                onValueChange={onChangeLocation}
+                                style={styles.picker}
+                                dropdownIconColor="#000000"
+                                enabled={locations.length > 0}
+                            >
+                                {locations.map((l) => (
+                                    <Picker.Item
+                                        key={`${type}-${l.id}`}
+                                        label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
+                                        value={String(l.id)}
+                                    />
+                                ))}
+                            </Picker>
+                        </View>
+                    </>
+                )}
             </View>
 
             <StatusBar style="auto" />

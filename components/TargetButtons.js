@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useAppContext } from "../AppContext";
-import { chooseMap } from "../helpers/chooseMap";
+import chooseMap from "../helpers/chooseMap";
 
 const NavigationButtons = () => {
     const { maps, setTargetData } = useAppContext();
@@ -10,26 +10,35 @@ const NavigationButtons = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>
-                GO TO:
-            </Text>
+            {mapNames.length === 0 ? (
+                <Text style={styles.emptyText}>
+                    No routes loaded.{"\n"}
+                    Import a JSON route in <Text style={styles.bold}>Route Manager</Text>.
+                </Text>
+            ) : (
+                <>
+                    <Text style={styles.title}>
+                        GO TO:
+                    </Text>
 
-            <View style={styles.buttonsWrapper}>
-                {mapNames.map((name) => (
-                    <Pressable
-                        key={name}
-                        onPress={() => chooseMap(maps, setTargetData, name)}
-                        style={({ pressed }) => [
-                            styles.button,
-                            pressed && styles.buttonPressed,
-                        ]}
-                    >
-                        <Text style={styles.buttonText}>
-                            {name.toUpperCase()}
-                        </Text>
-                    </Pressable>
-                ))}
-            </View>
+                    <View style={styles.buttonsWrapper}>
+                        {mapNames.map((name) => (
+                            <Pressable
+                                key={name}
+                                onPress={() => chooseMap(maps, setTargetData, name)}
+                                style={({ pressed }) => [
+                                    styles.button,
+                                    pressed && styles.buttonPressed,
+                                ]}
+                            >
+                                <Text style={styles.buttonText}>
+                                    {name.toUpperCase()}
+                                </Text>
+                            </Pressable>
+                        ))}
+                    </View>
+                </>
+            )}
         </View>
     );
 };
@@ -67,6 +76,18 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#000000",
         letterSpacing: 1,
+    },
+    emptyText: {
+        width: "100%",
+        fontSize: 14,
+        lineHeight: 40,
+        color: "#000000",
+        textAlign: "center",
+        fontFamily: "monospace",
+        flexWrap: "nowrap",
+    },
+    bold: {
+        fontWeight: "800",
     },
 });
 

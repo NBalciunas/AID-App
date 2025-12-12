@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, createContext, useContext} from "react";
 import * as Location from "expo-location";
 import { BleManager } from "react-native-ble-plx";
-import { loadAllMaps, importCustomMap, deleteCustomMap, clearAllCustomMaps, resetToDefaults, pruneOldDefaults } from "./helpers/mapStorage";
+import { loadAllMaps, importCustomMap, deleteCustomMap, clearAllCustomMaps } from "./helpers/mapStorage";
 import connectBLE from "./helpers/connectBLE";
 import sendMessageBLE from "./helpers/sendMessageBLE";
 
@@ -84,16 +84,6 @@ export const AppProvider = ({ children }) => {
 
     const clearCustomMaps = async () => {
         await clearAllCustomMaps();
-        await reloadMaps();
-    };
-
-    const resetMapsToDefaults = async () => {
-        await resetToDefaults();
-        await reloadMaps();
-    };
-
-    const pruneDefaults = async () => {
-        await pruneOldDefaults();
         await reloadMaps();
     };
 
@@ -372,8 +362,6 @@ export const AppProvider = ({ children }) => {
                 addMapFromPhone,
                 removeCustomMap,
                 clearCustomMaps,
-                resetMapsToDefaults,
-                pruneDefaults,
 
                 // sensitivity control
                 proximitySensitivity,

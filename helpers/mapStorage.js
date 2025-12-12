@@ -1,10 +1,7 @@
 import * as FileSystem from "expo-file-system/legacy";
 import * as DocumentPicker from "expo-document-picker";
-import defaults from "../assets/maps";
 
 const ROOT = FileSystem.documentDirectory + "maps/";
-const DEFAULT_DIR = ROOT + "default/";
-const CUSTOM_DIR = ROOT + "custom/";
 
 const ensureDir = async (dir) => {
     const info = await FileSystem.getInfoAsync(dir);
@@ -43,23 +40,26 @@ const loadDir = async (dir) => {
 }
 
 const initMapsStorage = async () => {
-    await ensureDir(DEFAULT_DIR);
-    await ensureDir(CUSTOM_DIR);
+    await ensureDir(ROOT);
+}
 
-    for(const m of defaults){
-        const path = DEFAULT_DIR + m.name + ".json";
-        const info = await FileSystem.getInfoAsync(path);
+const getUniqueName = async (base) => {
+    let name = base;
+    let i = 1;
+
+    while(true){
+        const info = await FileSystem.getInfoAsync(ROOT + name + ".json");
         if(!info.exists){
-            await FileSystem.writeAsStringAsync(path, JSON.stringify(m.data));
+            return name;
         }
+        name = `${base} (${i})`;
+        i++;
     }
 }
 
 const loadAllMaps = async () => {
     await initMapsStorage();
-    const def = await loadDir(DEFAULT_DIR);
-    const cus = await loadDir(CUSTOM_DIR);
-    return { ...def, ...cus };
+    return await loadDir(ROOT);
 }
 
 const importCustomMap = async () => {
@@ -71,7 +71,7 @@ const importCustomMap = async () => {
         multiple: false,
     });
 
-    if(res.canceled){
+    if(res.canceled || !res.assets || !res.assets[0]){
         return null;
     }
 
@@ -80,36 +80,21 @@ const importCustomMap = async () => {
     JSON.parse(raw);
 
     const base = safeBaseName(file.name);
-    await FileSystem.writeAsStringAsync(CUSTOM_DIR + base + ".json", raw);
-    return base;
+    const unique = await getUniqueName(base);
+
+    await FileSystem.writeAsStringAsync(ROOT + unique + ".json", raw);
+    return unique;
 }
 
 const deleteCustomMap = async (name) => {
     await initMapsStorage();
     const base = safeBaseName(name);
-    await FileSystem.deleteAsync(CUSTOM_DIR + base + ".json", { idempotent: true });
+    await FileSystem.deleteAsync(ROOT + base + ".json", { idempotent: true });
 }
 
 const clearAllCustomMaps = async () => {
-    await FileSystem.deleteAsync(CUSTOM_DIR, { idempotent: true });
-    await ensureDir(CUSTOM_DIR);
-}
-
-const resetToDefaults = async () => {
     await FileSystem.deleteAsync(ROOT, { idempotent: true });
-    await initMapsStorage();
+    await ensureDir(ROOT);
 }
 
-const pruneOldDefaults = async () => {
-    await initMapsStorage();
-    const keep = new Set(defaults.map((m) => m.name + ".json"));
-    const files = await FileSystem.readDirectoryAsync(DEFAULT_DIR);
-
-    for (const f of files) {
-        if (f.endsWith(".json") && !keep.has(f)) {
-            await FileSystem.deleteAsync(DEFAULT_DIR + f, { idempotent: true });
-        }
-    }
-};
-
-export { initMapsStorage, loadAllMaps, importCustomMap, deleteCustomMap, clearAllCustomMaps, resetToDefaults, pruneOldDefaults }
+export { initMapsStorage, loadAllMaps, importCustomMap, deleteCustomMap, clearAllCustomMaps }

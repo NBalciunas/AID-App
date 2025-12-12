@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useAppContext } from "../../../../AppContext";
 
 const RouteManager = () => {
-    const { maps, addMapFromPhone, removeCustomMap, reloadMaps, clearCustomMaps, resetMapsToDefaults, pruneDefaults } = useAppContext();
+    const { maps, addMapFromPhone, removeCustomMap, reloadMaps } = useAppContext();
 
     const [query, setQuery] = useState("");
 
@@ -43,7 +43,7 @@ const RouteManager = () => {
     const handleRemove = (name) => {
         Alert.alert(
             "Remove route?",
-            `"${name}" will be removed (if it is a custom/imported route).`,
+            `"${name}" will be removed.`,
             [
                 { text: "Cancel", style: "cancel" },
                 {
@@ -60,59 +60,6 @@ const RouteManager = () => {
                 },
             ]
         );
-    };
-
-    const handleClearCustom = () => {
-        Alert.alert(
-            "Clear custom routes?",
-            "This will delete all imported routes.",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Clear",
-                    style: "destructive",
-                    onPress: async () => {
-                        try{
-                            await clearCustomMaps();
-                        }
-                        catch(e){
-                            Alert.alert("Clear failed", e?.message || String(e));
-                        }
-                    },
-                },
-            ]
-        );
-    };
-
-    const handleReset = () => {
-        Alert.alert(
-            "Reset routes to defaults?",
-            "This will remove all cached routes and restore only the defaults shipped with the app.",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Reset",
-                    style: "destructive",
-                    onPress: async () => {
-                        try{
-                            await resetMapsToDefaults();
-                        }
-                        catch(e){
-                            Alert.alert("Reset failed", e?.message || String(e));
-                        }
-                    },
-                },
-            ]
-        );
-    };
-
-    const handlePrune = async () => {
-        try{
-            await pruneDefaults();
-        }
-        catch(e){
-            Alert.alert("Prune failed", e?.message || String(e));
-        }
     };
 
     const handleReload = async () => {
@@ -148,29 +95,6 @@ const RouteManager = () => {
                         <Text style={styles.btnText}>RELOAD</Text>
                     </Pressable>
                 </View>
-
-                <View style={styles.row}>
-                    <Pressable
-                        onPress={handleClearCustom}
-                        style={({ pressed }) => [styles.btnAlt, pressed && styles.btnPressed]}
-                    >
-                        <Text style={styles.btnAltText}>CLEAR CUSTOM</Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={handleReset}
-                        style={({ pressed }) => [styles.btnAlt, pressed && styles.btnPressed]}
-                    >
-                        <Text style={styles.btnAltText}>RESET DEFAULTS</Text>
-                    </Pressable>
-                </View>
-
-                <Pressable
-                    onPress={handlePrune}
-                    style={({ pressed }) => [styles.btnAltFull, pressed && styles.btnPressed]}
-                >
-                    <Text style={styles.btnAltText}>PRUNE OLD DEFAULTS</Text>
-                </Pressable>
             </View>
 
             <View style={styles.block}>
@@ -269,37 +193,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
-    btnAlt: {
-        flex: 1,
-        paddingVertical: 12,
-        borderRadius: 10,
-        backgroundColor: "#fafafa",
-        borderWidth: 1.5,
-        borderColor: "#000000",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    btnAltFull: {
-        paddingVertical: 12,
-        borderRadius: 10,
-        backgroundColor: "#fafafa",
-        borderWidth: 1.5,
-        borderColor: "#000000",
-        alignItems: "center",
-        justifyContent: "center",
-    },
     btnPressed: {
         backgroundColor: "#eaeaea",
     },
     btnText: {
-        color: "#000000",
-        fontWeight: "700",
-        letterSpacing: 0.5,
-        fontFamily: "Poppins-Bold",
-        fontSize: 12,
-        textTransform: "uppercase",
-    },
-    btnAltText: {
         color: "#000000",
         fontWeight: "700",
         letterSpacing: 0.5,
