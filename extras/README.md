@@ -17,4 +17,4 @@ Example output files (`route.json`, `route.kml`) are available in the `route-gen
 
 The screenshot below shows an example KML output rendered in Google Maps:
 
-![KML Preview](route-gen/examples/kml-preview.png)
+![KML Preview](images/kml-preview.png)

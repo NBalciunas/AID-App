@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "700",
         textAlign: "center",
-        marginTop: 10,
         fontFamily: "Poppins-Bold",
         color: "#000000",
     },

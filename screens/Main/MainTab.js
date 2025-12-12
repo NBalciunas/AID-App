@@ -54,16 +54,17 @@ const MainTab = () => {
         const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
         if(nextLocDir === "R"){
             alert("Turn Right!");
+            // msg to esp32 here
         }
         else if(nextLocDir === "L"){
             alert("Turn Left!");
+            // msg to esp32 here
         }
         else if(nextLocDir === "A"){
             alert("Move Ahead!");
         }
     }, [onTarget]);
 
-    // OFF COURSE -> snap to nearest node
     React.useEffect(() => {
         if(!currentLoc || !coords || !allLocations.length){
             return;
@@ -109,7 +110,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#fff",
-        padding: 20 },
+        padding: 12,
+    },
 });
 
 export default MainTab;

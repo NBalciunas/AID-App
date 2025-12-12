@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 48,
         fontWeight: "800",
-        marginBottom: 10,
+        marginBottom: 7,
         color: "#000000",
     },
     buttonsWrapper: {

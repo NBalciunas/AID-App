@@ -187,9 +187,15 @@ const Debug = () => {
                         <View key={t} style={{ marginBottom: 12 }}>
                             <Text style={styles.subheader}>{t.toUpperCase()}</Text>
                             {(Array.isArray(locs) ? locs : []).map((l) => (
-                                <Text key={`${t}-${l.id}`} style={styles.code}>
-                                    {l.id}: ({l.lat}, {l.lon}) -> {l.connected_to.join(", ")}
-                                </Text>
+                                <ScrollView
+                                    key={`${t}-${l.id}`}
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                >
+                                    <Text style={styles.code} numberOfLines={1}>
+                                        {l.id}: ({l.lat}, {l.lon}) -> {l.connected_to.join(", ")}
+                                    </Text>
+                                </ScrollView>
                             ))}
                         </View>
                     ))
