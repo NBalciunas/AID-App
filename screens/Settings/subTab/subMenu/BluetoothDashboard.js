@@ -13,43 +13,131 @@ const BluetoothDashboard = () => {
     const [leftJustDisconnected, setLeftJustDisconnected] = useState(false);
     const [rightJustDisconnected, setRightJustDisconnected] = useState(false);
 
+    const [leftReconnectingUI, setLeftReconnectingUI] = useState(false);
+    const [rightReconnectingUI, setRightReconnectingUI] = useState(false);
+
     const prevLeftConnected = useRef(leftBleConnected);
     const prevRightConnected = useRef(rightBleConnected);
 
+    const leftEverConnectedRef = useRef(false);
+    const rightEverConnectedRef = useRef(false);
+
     useEffect(() => {
-        let timeoutId;
-        if(prevLeftConnected.current && !leftBleConnected){
-            setLeftJustDisconnected(true);
-            timeoutId = setTimeout(() => {
-                setLeftJustDisconnected(false);
-            }, 1000);
+        if(leftBleConnected){
+            leftEverConnectedRef.current = true;
         }
-        prevLeftConnected.current = leftBleConnected;
-        return () => {
-            if(timeoutId){
-                clearTimeout(timeoutId);
-            }
-        };
     }, [leftBleConnected]);
 
     useEffect(() => {
-        let timeoutId;
-        if(prevRightConnected.current && !rightBleConnected){
-            setRightJustDisconnected(true);
-            timeoutId = setTimeout(() => {
-                setRightJustDisconnected(false);
-            }, 1000);
+        if(rightBleConnected){
+            rightEverConnectedRef.current = true;
         }
-        prevRightConnected.current = rightBleConnected;
-        return () => {
-            if(timeoutId){
-                clearTimeout(timeoutId);
-            }
-        };
     }, [rightBleConnected]);
 
+    useEffect(() => {
+        if(leftBleConnected){
+            setLeftJustDisconnected(false);
+            setLeftReconnectingUI(false);
+        }
+
+        if(prevLeftConnected.current && !leftBleConnected){
+            setLeftJustDisconnected(true);
+            setLeftReconnectingUI(false);
+        }
+
+        prevLeftConnected.current = leftBleConnected;
+    }, [leftBleConnected]);
+
+    useEffect(() => {
+        if(rightBleConnected){
+            setRightJustDisconnected(false);
+            setRightReconnectingUI(false);
+        }
+
+        if(prevRightConnected.current && !rightBleConnected){
+            setRightJustDisconnected(true);
+            setRightReconnectingUI(false);
+        }
+
+        prevRightConnected.current = rightBleConnected;
+    }, [rightBleConnected]);
+
+    const getLastSideLog = (side) => {
+        for(let i = bleLogs.length - 1; i >= 0; i--){
+            const l = bleLogs[i];
+            if(l.includes(`${side}:`)){
+                return l;
+            }
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        if(leftBleConnected){
+            return;
+        }
+
+        if(!leftEverConnectedRef.current){
+            setLeftJustDisconnected(false);
+            setLeftReconnectingUI(false);
+            return;
+        }
+
+        const lastLeft = getLastSideLog("LEFT");
+        if(!lastLeft){
+            return;
+        }
+
+        if(!leftConnecting && lastLeft.includes("LEFT: Starting ESP32 scan")){
+            setLeftReconnectingUI(true);
+            setLeftJustDisconnected(false);
+        }
+
+        if(leftReconnectingUI && lastLeft.includes("LEFT: Connection error")){
+            setLeftReconnectingUI(false);
+            setLeftJustDisconnected(false);
+        }
+
+        if(leftReconnectingUI && lastLeft.includes("LEFT: Auto-reconnect disabled")){
+            setLeftReconnectingUI(false);
+            setLeftJustDisconnected(false);
+        }
+    }, [bleLogs, leftBleConnected, leftConnecting, leftReconnectingUI]);
+
+    useEffect(() => {
+        if(rightBleConnected){
+            return;
+        }
+
+        if(!rightEverConnectedRef.current){
+            setRightJustDisconnected(false);
+            setRightReconnectingUI(false);
+            return;
+        }
+
+        const lastRight = getLastSideLog("RIGHT");
+        if(!lastRight){
+            return;
+        }
+
+        if(!rightConnecting && lastRight.includes("RIGHT: Starting ESP32 scan")){
+            setRightReconnectingUI(true);
+            setRightJustDisconnected(false);
+        }
+
+        if(rightReconnectingUI && lastRight.includes("RIGHT: Connection error")){
+            setRightReconnectingUI(false);
+            setRightJustDisconnected(false);
+        }
+
+        if(rightReconnectingUI && lastRight.includes("RIGHT: Auto-reconnect disabled")){
+            setRightReconnectingUI(false);
+            setRightJustDisconnected(false);
+        }
+    }, [bleLogs, rightBleConnected, rightConnecting, rightReconnectingUI]);
+
     const handleConnectLeftPress = async () => {
-        if(leftBleConnected || leftConnecting){
+        if(leftBleConnected || leftConnecting || leftReconnectingUI){
             return;
         }
         try{
@@ -62,7 +150,7 @@ const BluetoothDashboard = () => {
     };
 
     const handleConnectRightPress = async () => {
-        if(rightBleConnected || rightConnecting){
+        if(rightBleConnected || rightConnecting || rightReconnectingUI){
             return;
         }
         try{
@@ -106,6 +194,9 @@ const BluetoothDashboard = () => {
         await sendRightBleMessage("R");
     };
 
+    const leftBusy = leftConnecting || leftReconnectingUI;
+    const rightBusy = rightConnecting || rightReconnectingUI;
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>BLUETOOTH DASHBOARD</Text>
@@ -118,11 +209,8 @@ const BluetoothDashboard = () => {
                     style={({ pressed }) => [
                         styles.connectBtn,
                         leftBleConnected && styles.connectBtnActive,
-                        leftConnecting && styles.connectBtnConnecting,
-                        leftJustDisconnected &&
-                        !leftBleConnected &&
-                        !leftConnecting &&
-                        styles.connectBtnDisconnected,
+                        leftBusy && styles.connectBtnConnecting,
+                        leftJustDisconnected && !leftBleConnected && !leftBusy && styles.connectBtnDisconnected,
                         pressed && styles.buttonPressed,
                     ]}
                 >
@@ -130,14 +218,11 @@ const BluetoothDashboard = () => {
                         style={[
                             styles.connectBtnText,
                             leftBleConnected && styles.connectBtnTextActive,
-                            leftConnecting && styles.connectBtnTextConnecting,
-                            leftJustDisconnected &&
-                            !leftBleConnected &&
-                            !leftConnecting &&
-                            styles.connectBtnTextDisconnected,
+                            leftBusy && styles.connectBtnTextConnecting,
+                            leftJustDisconnected && !leftBleConnected && !leftBusy && styles.connectBtnTextDisconnected,
                         ]}
                     >
-                        {leftConnecting ? "LEFT CONNECTING..." : leftBleConnected ? "LEFT CONNECTED" : leftJustDisconnected ? "LEFT DISCONNECTED" : "CONNECT LEFT"}
+                        {leftConnecting ? "LEFT CONNECTING..." : leftBleConnected ? "LEFT CONNECTED" : leftReconnectingUI ? "LEFT RECONNECTING..." : leftJustDisconnected ? "LEFT DISCONNECTED" : "CONNECT LEFT"}
                     </Text>
                 </Pressable>
 
@@ -146,11 +231,8 @@ const BluetoothDashboard = () => {
                     style={({ pressed }) => [
                         styles.connectBtn,
                         rightBleConnected && styles.connectBtnActive,
-                        rightConnecting && styles.connectBtnConnecting,
-                        rightJustDisconnected &&
-                        !rightBleConnected &&
-                        !rightConnecting &&
-                        styles.connectBtnDisconnected,
+                        rightBusy && styles.connectBtnConnecting,
+                        rightJustDisconnected && !rightBleConnected && !rightBusy && styles.connectBtnDisconnected,
                         pressed && styles.buttonPressed,
                     ]}
                 >
@@ -158,14 +240,11 @@ const BluetoothDashboard = () => {
                         style={[
                             styles.connectBtnText,
                             rightBleConnected && styles.connectBtnTextActive,
-                            rightConnecting && styles.connectBtnTextConnecting,
-                            rightJustDisconnected &&
-                            !rightBleConnected &&
-                            !rightConnecting &&
-                            styles.connectBtnTextDisconnected,
+                            rightBusy && styles.connectBtnTextConnecting,
+                            rightJustDisconnected && !rightBleConnected && !rightBusy && styles.connectBtnTextDisconnected,
                         ]}
                     >
-                        {rightConnecting ? "RIGHT CONNECTING..." : rightBleConnected ? "RIGHT CONNECTED" : rightJustDisconnected ? "RIGHT DISCONNECTED" : "CONNECT RIGHT"}
+                        {rightConnecting ? "RIGHT CONNECTING..." : rightBleConnected ? "RIGHT CONNECTED" : rightReconnectingUI ? "RIGHT RECONNECTING..." : rightJustDisconnected ? "RIGHT DISCONNECTED" : "CONNECT RIGHT"}
                     </Text>
                 </Pressable>
             </View>
