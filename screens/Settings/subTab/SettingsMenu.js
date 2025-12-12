@@ -9,6 +9,8 @@ const Debug = () => {
 
     return(
         <View style={styles.container}>
+            <SettingItem onPress={() => navigation.navigate('RouteManager')} title="Route Manager" />
+            <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('BluetoothDashboard')} title="Bluetooth Dashboard" />
             <Divider style={styles.divider}/>
             <SettingItem onPress={() => navigation.navigate('Debug')} title="Debug" />

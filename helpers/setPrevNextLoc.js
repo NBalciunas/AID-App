@@ -1,14 +1,14 @@
-export const hasPrev = (allLocations, currentLoc) => {
+const hasPrev = (allLocations, currentLoc) => {
     const index = allLocations.findIndex(l => l.id === currentLoc?.id);
     return(index > 0);
 };
 
-export const hasNext = (allLocations, currentLoc) => {
+const hasNext = (allLocations, currentLoc) => {
     const index = allLocations.findIndex(l => l.id === currentLoc?.id);
     return(index >= 0 && index < allLocations.length - 1);
 };
 
-export const setPrevLoc = (type, allLocations, currentLoc, setTargetData) => {
+const setPrevLoc = (type, allLocations, currentLoc, setTargetData) => {
     const index = allLocations.findIndex(l => l.id === currentLoc?.id);
     if(index <= 0){
         return;
@@ -22,7 +22,7 @@ export const setPrevLoc = (type, allLocations, currentLoc, setTargetData) => {
     });
 };
 
-export const setNextLoc = (type, allLocations, currentLoc, setTargetData) => {
+const setNextLoc = (type, allLocations, currentLoc, setTargetData) => {
     const index = allLocations.findIndex(l => l.id === currentLoc?.id);
     if(index < 0 || index >= allLocations.length - 1){
         return;
@@ -35,3 +35,5 @@ export const setNextLoc = (type, allLocations, currentLoc, setTargetData) => {
         location: { ...next }
     });
 };
+
+export { hasPrev, hasNext, setPrevLoc, setNextLoc }

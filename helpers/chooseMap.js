@@ -1,4 +1,4 @@
-export const chooseMap = (maps, setTargetData, name) => {
+const chooseMap = (maps, setTargetData, name) => {
     const locs = maps[name];
     if (!locs || locs.length === 0) return;
 
@@ -9,3 +9,5 @@ export const chooseMap = (maps, setTargetData, name) => {
         location: { ...first }
     });
 };
+
+export default chooseMap;

@@ -42,6 +42,10 @@ cd android
 7. Go back to the **Main** tab.
 8. Tap any route from the list to choose it and start guidance.
 
+## Preview
+
+[placeholder]
+
 ## Extras
 
 Code for the ESP32-powered bracelet(s) and the route generation script is available in the `extras/` folder.

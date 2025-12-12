@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, createContext, useContext} from "react";
 import * as Location from "expo-location";
 import { BleManager } from "react-native-ble-plx";
-import mapsIndex from "./assets/maps";
+import { loadAllMaps, importCustomMap, deleteCustomMap, clearAllCustomMaps, resetToDefaults, pruneOldDefaults } from "./helpers/mapStorage";
 import connectBLE from "./helpers/connectBLE";
 import sendMessageBLE from "./helpers/sendMessageBLE";
 
@@ -62,6 +62,39 @@ export const AppProvider = ({ children }) => {
             ...prev,
             `${new Date().toLocaleTimeString()} → ${msg}`,
         ]);
+    };
+
+    const reloadMaps = async () => {
+        const loaded = await loadAllMaps();
+        setMaps(loaded);
+    };
+
+    const addMapFromPhone = async () => {
+        const name = await importCustomMap();
+        if(name){
+            await reloadMaps();
+        }
+        return name;
+    };
+
+    const removeCustomMap = async (name) => {
+        await deleteCustomMap(name);
+        await reloadMaps();
+    };
+
+    const clearCustomMaps = async () => {
+        await clearAllCustomMaps();
+        await reloadMaps();
+    };
+
+    const resetMapsToDefaults = async () => {
+        await resetToDefaults();
+        await reloadMaps();
+    };
+
+    const pruneDefaults = async () => {
+        await pruneOldDefaults();
+        await reloadMaps();
     };
 
     const connectLeftESP32 = async () => {
@@ -207,7 +240,17 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         let mounted = true;
 
-        setMaps(mapsIndex);
+        (async () => {
+            try{
+                const loaded = await loadAllMaps();
+                if(mounted){
+                    setMaps(loaded);
+                }
+            }
+            catch(e){
+                console.warn(e?.message || e);
+            }
+        })();
 
         (async () => {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -323,6 +366,14 @@ export const AppProvider = ({ children }) => {
                 // map data
                 maps,
                 setMaps,
+
+                // map actions
+                reloadMaps,
+                addMapFromPhone,
+                removeCustomMap,
+                clearCustomMaps,
+                resetMapsToDefaults,
+                pruneDefaults,
 
                 // sensitivity control
                 proximitySensitivity,
