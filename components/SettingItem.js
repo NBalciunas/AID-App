@@ -28,22 +28,23 @@ const SettingItem = ({ title, onPress, color='F7F7F7', moreText }) => {
 
 const styles = StyleSheet.create({
     settingItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        justifyContent: "space-between",
         padding: 10,
         paddingVertical: 12,
         marginHorizontal: 10,
-        alignItems: 'center',
+        alignItems: "center",
     },
     settingText: {
         fontSize: 16,
-        fontFamily: 'Poppins-Bold',
-        textAlign: 'right',
+        fontFamily: "Poppins-Bold",
+        textAlign: "right",
+        color: "#000000"
     },
     detailText: {
         fontSize: 16,
-        fontFamily: 'Poppins-Bold',
-        color: '#909090',
+        fontFamily: "Poppins-Bold",
+        color: "#909090",
     },
 });
 

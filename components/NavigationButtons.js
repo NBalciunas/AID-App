@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginTop: 10,
         fontFamily: "Poppins-Bold",
+        color: "#000000",
     },
     row: {
         flexDirection: "row",

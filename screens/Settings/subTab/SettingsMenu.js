@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         position: 'absolute',
         bottom: 20,
+        color: "#000000",
     },
 });
 

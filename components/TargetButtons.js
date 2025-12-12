@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
         fontSize: 48,
         fontWeight: "800",
         marginBottom: 10,
+        color: "#000000",
     },
     buttonsWrapper: {
         width: "85%",
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
         paddingVertical: 22,
         borderRadius: 18,
         borderWidth: 4,
-        borderColor: "black",
+        borderColor: "#000000",
         alignItems: "center",
     },
     buttonPressed: {
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 28,
         fontWeight: "700",
-        color: "black",
+        color: "#000000",
         letterSpacing: 1,
     },
 });

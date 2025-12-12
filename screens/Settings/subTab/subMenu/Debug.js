@@ -132,9 +132,10 @@ const Debug = () => {
                         selectedValue={proximitySensitivity}
                         onValueChange={setProximitySensitivity}
                         style={styles.picker}
+                        dropdownIconColor="#000000"
                     >
                         {SENSITIVITY_OPTIONS.map((v) => (
-                            <Picker.Item key={v} label={`${v} m`} value={v} color="black" />
+                            <Picker.Item key={v} label={`${v} m`} value={v} color="#ffffff" />
                         ))}
                     </Picker>
                 </View>
@@ -175,9 +176,10 @@ const Debug = () => {
                         selectedValue={type}
                         onValueChange={onChangeType}
                         style={styles.picker}
+                        dropdownIconColor="#000000"
                     >
                         {types.map((t) => (
-                            <Picker.Item key={t} label={t} value={t} color="black" />
+                            <Picker.Item key={t} label={t} value={t} color="#ffffff" />
                         ))}
                     </Picker>
                 </View>
@@ -189,13 +191,14 @@ const Debug = () => {
                         selectedValue={locId}
                         onValueChange={onChangeLocation}
                         style={styles.picker}
+                        dropdownIconColor="#000000"
                     >
                         {locations.map((l) => (
                             <Picker.Item
                                 key={`${type}-${l.id}`}
                                 label={`#${l.id} (${l.lat.toFixed(5)}, ${l.lon.toFixed(5)})`}
                                 value={String(l.id)}
-                                color="black"
+                                color="#ffffff"
                             />
                         ))}
                     </Picker>
@@ -212,7 +215,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         padding: 16,
         borderWidth: 1.5,
-        borderColor: "#000",
+        borderColor: "#000000",
         borderRadius: 12,
         backgroundColor: "#fafafa",
     },
@@ -223,11 +226,13 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         letterSpacing: 0.5,
         fontFamily: "Poppins-Bold",
+        color: "#000000",
     },
     code: {
         fontSize: 14,
         fontFamily: "monospace",
         lineHeight: 20,
+        color: "#000000",
     },
     compassWrapper: {
         alignItems: "center",
@@ -237,13 +242,13 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 40,
         paddingHorizontal: 24,
-        backgroundColor: "#fff",
+        backgroundColor: "#ffffff",
     },
     frameBox: {
         borderWidth: 1.5,
-        borderColor: "#000",
+        borderColor: "#000000",
         borderRadius: 10,
-        backgroundColor: "#fff",
+        backgroundColor: "#ffffff",
         paddingHorizontal: 6,
         paddingVertical: 4,
         marginBottom: 12,
@@ -257,12 +262,14 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginBottom: 4,
         fontFamily: "monospace",
+        color: "#000000",
     },
     title: {
         fontSize: 22,
         fontWeight: "700",
         marginBottom: 12,
         fontFamily: "Poppins-Bold",
+        color: "#000000",
     },
 });
 
