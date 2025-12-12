@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, ScrollView, StyleSheet, TextInput, Pressable } from "react-native";
 import { useAppContext } from "../../../../AppContext";
 
@@ -10,11 +10,49 @@ const BluetoothDashboard = () => {
     const [leftConnecting, setLeftConnecting] = useState(false);
     const [rightConnecting, setRightConnecting] = useState(false);
 
+    const [leftJustDisconnected, setLeftJustDisconnected] = useState(false);
+    const [rightJustDisconnected, setRightJustDisconnected] = useState(false);
+
+    const prevLeftConnected = useRef(leftBleConnected);
+    const prevRightConnected = useRef(rightBleConnected);
+
+    useEffect(() => {
+        let timeoutId;
+        if(prevLeftConnected.current && !leftBleConnected){
+            setLeftJustDisconnected(true);
+            timeoutId = setTimeout(() => {
+                setLeftJustDisconnected(false);
+            }, 1000);
+        }
+        prevLeftConnected.current = leftBleConnected;
+        return () => {
+            if(timeoutId){
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [leftBleConnected]);
+
+    useEffect(() => {
+        let timeoutId;
+        if(prevRightConnected.current && !rightBleConnected){
+            setRightJustDisconnected(true);
+            timeoutId = setTimeout(() => {
+                setRightJustDisconnected(false);
+            }, 1000);
+        }
+        prevRightConnected.current = rightBleConnected;
+        return () => {
+            if(timeoutId){
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [rightBleConnected]);
+
     const handleConnectLeftPress = async () => {
         if(leftBleConnected || leftConnecting){
             return;
         }
-        try {
+        try{
             setLeftConnecting(true);
             await connectLeftESP32();
         }
@@ -54,6 +92,20 @@ const BluetoothDashboard = () => {
         setRightMessage("");
     };
 
+    const handleSendLeftQuickLPress = async () => {
+        if(!leftBleConnected){
+            return;
+        }
+        await sendLeftBleMessage("L");
+    };
+
+    const handleSendRightQuickRPress = async () => {
+        if (!rightBleConnected){
+            return;
+        }
+        await sendRightBleMessage("R");
+    };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>BLUETOOTH DASHBOARD</Text>
@@ -67,6 +119,10 @@ const BluetoothDashboard = () => {
                         styles.connectBtn,
                         leftBleConnected && styles.connectBtnActive,
                         leftConnecting && styles.connectBtnConnecting,
+                        leftJustDisconnected &&
+                        !leftBleConnected &&
+                        !leftConnecting &&
+                        styles.connectBtnDisconnected,
                         pressed && styles.buttonPressed,
                     ]}
                 >
@@ -75,9 +131,13 @@ const BluetoothDashboard = () => {
                             styles.connectBtnText,
                             leftBleConnected && styles.connectBtnTextActive,
                             leftConnecting && styles.connectBtnTextConnecting,
+                            leftJustDisconnected &&
+                            !leftBleConnected &&
+                            !leftConnecting &&
+                            styles.connectBtnTextDisconnected,
                         ]}
                     >
-                        {leftConnecting ? "CONNECTING..." : leftBleConnected ? "LEFT CONNECTED" : "CONNECT LEFT"}
+                        {leftConnecting ? "LEFT CONNECTING..." : leftBleConnected ? "LEFT CONNECTED" : leftJustDisconnected ? "LEFT DISCONNECTED" : "CONNECT LEFT"}
                     </Text>
                 </Pressable>
 
@@ -87,6 +147,10 @@ const BluetoothDashboard = () => {
                         styles.connectBtn,
                         rightBleConnected && styles.connectBtnActive,
                         rightConnecting && styles.connectBtnConnecting,
+                        rightJustDisconnected &&
+                        !rightBleConnected &&
+                        !rightConnecting &&
+                        styles.connectBtnDisconnected,
                         pressed && styles.buttonPressed,
                     ]}
                 >
@@ -95,9 +159,13 @@ const BluetoothDashboard = () => {
                             styles.connectBtnText,
                             rightBleConnected && styles.connectBtnTextActive,
                             rightConnecting && styles.connectBtnTextConnecting,
+                            rightJustDisconnected &&
+                            !rightBleConnected &&
+                            !rightConnecting &&
+                            styles.connectBtnTextDisconnected,
                         ]}
                     >
-                        {rightConnecting ? "CONNECTING..." : rightBleConnected ? "RIGHT CONNECTED" : "CONNECT RIGHT"}
+                        {rightConnecting ? "RIGHT CONNECTING..." : rightBleConnected ? "RIGHT CONNECTED" : rightJustDisconnected ? "RIGHT DISCONNECTED" : "CONNECT RIGHT"}
                     </Text>
                 </Pressable>
             </View>
@@ -124,7 +192,17 @@ const BluetoothDashboard = () => {
                                 ]}
                                 onPress={handleSendLeftPress}
                             >
-                                <Text style={styles.sendBtnText}>SEND LEFT</Text>
+                                <Text style={styles.sendBtnText}>SEND MESSAGE</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.quickBtn,
+                                    pressed && styles.buttonPressed,
+                                ]}
+                                onPress={handleSendLeftQuickLPress}
+                            >
+                                <Text style={styles.quickBtnText}>VIBRATE</Text>
                             </Pressable>
                         </View>
                     )}
@@ -153,7 +231,17 @@ const BluetoothDashboard = () => {
                                 ]}
                                 onPress={handleSendRightPress}
                             >
-                                <Text style={styles.sendBtnText}>SEND RIGHT</Text>
+                                <Text style={styles.sendBtnText}>SEND MESSAGE</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.quickBtn,
+                                    pressed && styles.buttonPressed,
+                                ]}
+                                onPress={handleSendRightQuickRPress}
+                            >
+                                <Text style={styles.quickBtnText}>VIBRATE</Text>
                             </Pressable>
                         </View>
                     )}
@@ -229,6 +317,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff4cc",
         borderColor: "#f59f00",
     },
+    connectBtnDisconnected: {
+        backgroundColor: "#ffe3e3",
+        borderColor: "#c92a2a",
+    },
     connectBtnText: {
         fontSize: 16,
         fontWeight: "700",
@@ -241,6 +333,9 @@ const styles = StyleSheet.create({
     },
     connectBtnTextConnecting: {
         color: "#f59f00",
+    },
+    connectBtnTextDisconnected: {
+        color: "#c92a2a",
     },
     sendBox: {
         marginTop: 4,
@@ -286,6 +381,22 @@ const styles = StyleSheet.create({
     },
     buttonPressed: {
         backgroundColor: "#e0e0e0",
+    },
+    quickBtn: {
+        backgroundColor: "#fff",
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        borderColor: "#000",
+        marginTop: 6,
+        alignItems: "center",
+    },
+    quickBtnText: {
+        color: "#000",
+        fontSize: 16,
+        fontWeight: "700",
+        fontFamily: "Poppins-Bold",
     },
     logArea: {
         marginTop: 8,
