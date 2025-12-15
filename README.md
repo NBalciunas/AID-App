@@ -50,7 +50,7 @@ cd android
 
 ## Preview
 
-<p float="left">
+<p align="center">
   <img src="extras/images/app-preview-1.jpg" width="200"  alt="App Preview 1"/>
   <img src="extras/images/app-preview-2.jpg" width="200"  alt="App Preview 2"/>
   <img src="extras/images/app-preview-3.jpg" width="200"  alt="App Preview 3"/>
