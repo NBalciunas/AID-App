@@ -12,7 +12,7 @@ import getNextPoint from "../../helpers/getNextPoint";
 import isOffCourse from "../../helpers/isOffCourse";
 
 const MainTab = () => {
-    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget, proximitySensitivity } = useAppContext();
+    const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget, proximitySensitivity, leftBleConnected, rightBleConnected, sendLeftBleMessage, sendRightBleMessage } = useAppContext();
 
     const onTarget = isOnTarget(distanceMeters, coords?.accuracy, proximitySensitivity);
     const type = targetData?.location_name?.split(" – ")?.[0];
@@ -33,6 +33,16 @@ const MainTab = () => {
 
         const nextId = getNextPoint(allLocations, currentLoc.id, prevLocIdRef.current);
         if(!nextId){
+            (async () => {
+                try{
+                    await Promise.all([
+                        leftBleConnected ? sendLeftBleMessage("L") : Promise.resolve(),
+                        rightBleConnected ? sendRightBleMessage("R") : Promise.resolve(),
+                    ]);
+                }
+                catch(e){}
+            })();
+
             alert("Reached the end!");
             return;
         }
@@ -52,15 +62,20 @@ const MainTab = () => {
 
         const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
         if(nextLocDir === "R"){
-            alert("Turn Right!");
-            // msg to esp32 here
+            if(rightBleConnected){
+                sendRightBleMessage("R");
+            }
+            else{
+                alert("Turn RIGHT (Right bracelet not connected)")
+            }
         }
         else if(nextLocDir === "L"){
-            alert("Turn Left!");
-            // msg to esp32 here
-        }
-        else if(nextLocDir === "A"){
-            alert("Move Ahead!");
+            if(leftBleConnected){
+                sendLeftBleMessage("L");
+            }
+            else{
+                alert("Turn LEFT (Left bracelet not connected)")
+            }
         }
     }, [onTarget]);
 
