@@ -50,7 +50,17 @@ cd android
 
 ## Preview
 
-[placeholder]
+![App Preview 1.jpg](extras/images/app-preview-1.jpg)
+![App Preview 2.jpg](extras/images/app-preview-2.jpg)
+![App Preview 3.jpg](extras/images/app-preview-3.jpg)
+![App Preview 4.jpg](extras/images/app-preview-4.jpg)
+
+<p float="left">
+  <img src="extras/images/app-preview-1.jpg" width="220" />
+  <img src="extras/images/app-preview-2.jpg" width="220" />
+  <img src="extras/images/app-preview-3.jpg" width="220" />
+  <img src="extras/images/app-preview-4.jpg" width="220" />
+</p>
 
 ## Extras
 
