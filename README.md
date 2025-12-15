@@ -64,6 +64,7 @@ Code for the ESP32-powered bracelet(s) and the route generation script is availa
 ## Next steps
 
 - Automate bracelet connection on app launch.
+- Make the app keep running in the background, even when it’s closed.
 - Improve off-route detection logic and make reconnection to the route more reliable.
 - Improve the Python route graph generation script.
 - Add optional ESP32 bracelet screen and speaker support for status and guidance cues.
