@@ -5,7 +5,7 @@
 #define SERVICE_UUID        "12345678-1234-5678-1234-56789abcdef0"
 #define CHARACTERISTIC_UUID "abcdef01-1234-5678-1234-56789abcdef0"
 
-const int VIB_PIN = LED_BUILTIN;
+const int VIB_PIN = 26;
 const unsigned long VIB_ON_MS = 1000;
 
 unsigned long vibOffAt = 0;
