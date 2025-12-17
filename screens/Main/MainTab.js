@@ -11,6 +11,25 @@ import determineLocDir from "../../helpers/determineLocDir";
 import getNextPoint from "../../helpers/getNextPoint";
 import isOffCourse from "../../helpers/isOffCourse";
 
+const toRad = (deg) => (deg * Math.PI) / 180;
+const toDeg = (rad) => (rad * 180) / Math.PI;
+
+const computeBearing = (fromCoords, toLoc) => {
+    if(!fromCoords || !toLoc){
+        return null;
+    }
+
+    const Phi1 = toRad(fromCoords.latitude);
+    const Phi2 = toRad(toLoc.lat);
+    const dLambda = toRad(toLoc.lon - fromCoords.longitude);
+
+    const y = Math.sin(dLambda) * Math.cos(Phi2);
+    const x = Math.cos(Phi1) * Math.sin(Phi2) - Math.sin(Phi1) * Math.cos(Phi2) * Math.cos(dLambda);
+
+    const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
+    return brng;
+};
+
 const MainTab = () => {
     const { targetData, relativeAngle, distanceMeters, coords, maps, setTargetData, heading, bearingToTarget, proximitySensitivity, leftBleConnected, rightBleConnected, sendLeftBleMessage, sendRightBleMessage } = useAppContext();
 
@@ -60,7 +79,13 @@ const MainTab = () => {
             location: nextPoint,
         }));
 
-        const nextLocDir = determineLocDir(heading, bearingToTarget, 5);
+        if(!coords || heading == null){
+            return;
+        }
+
+        const nextBearing = computeBearing(coords, nextPoint);
+        const nextLocDir = determineLocDir(heading, nextBearing, 5);
+
         if(nextLocDir === "R"){
             if(rightBleConnected){
                 sendRightBleMessage("R");
